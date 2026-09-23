@@ -20,7 +20,9 @@
     <span>{{ utente.nome }} {{ utente.cognome }}</span>
     <span class="pill pill-good" *ngIf="utente.ruolo === 'admin'">amministratore</span>
     <span class="persona-meta" *ngIf="zona(utente)">{{ zona(utente) }}</span>
-    <span class="persona-meta">La rilevanza delle referenze è calcolata per questo utente.</span>
+    <span class="persona-meta solo-desktop">
+      La rilevanza delle referenze è calcolata per questo utente.
+    </span>
   </div>
 </div>
 

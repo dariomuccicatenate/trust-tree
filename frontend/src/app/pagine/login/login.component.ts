@@ -24,6 +24,12 @@ export class LoginComponent implements OnInit {
   private readonly rotta = inject(ActivatedRoute);
 
   scheda: Scheda = 'accesso';
+
+  /**
+   * Su schermo stretto le due meta' diventano due schermate: prima la presentazione,
+   * poi il form. Su desktop restano affiancate e questo stato non ha effetto.
+   */
+  mostraForm = false;
   invio = false;
   errore = '';
 
@@ -58,6 +64,16 @@ export class LoginComponent implements OnInit {
     this.meta.updateTag({ property: 'og:title', content: 'Trust Tree — referenze verificate di professionisti' });
     this.meta.updateTag({ property: 'og:description', content: descrizione });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
+  }
+
+  apriForm(scheda: Scheda = 'accesso'): void {
+    this.scheda = scheda;
+    this.errore = '';
+    this.mostraForm = true;
+  }
+
+  tornaAllaPresentazione(): void {
+    this.mostraForm = false;
   }
 
   cambiaScheda(scheda: Scheda): void {

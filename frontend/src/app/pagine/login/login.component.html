@@ -1,5 +1,5 @@
 <div class="access-shell">
-  <div class="access-grid">
+  <div class="access-grid" [class.mostra-form]="mostraForm">
     <section class="access-pitch" aria-labelledby="titolo-pitch">
       <h2 id="titolo-pitch">Professionisti di fiducia, scelti su referenze verificate</h2>
       <p>
@@ -22,9 +22,43 @@
         </li>
       </ul>
       <p>Il passaparola del tuo palazzo, con un punteggio trasparente.</p>
+
+      <div class="solo-mobile azioni-presentazione">
+        <button class="btn btn-chiaro" type="button" (click)="apriForm('accesso')">
+          Accedi
+          <svg class="freccia" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button class="btn btn-trasparente" type="button" (click)="apriForm('registrazione')">
+          Crea un account
+        </button>
+      </div>
     </section>
 
+    <button
+      class="freccia-laterale solo-mobile"
+      type="button"
+      aria-label="Vai all'accesso"
+      (click)="apriForm('accesso')"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
     <div class="access-form-side">
+      <button
+        class="torna-indietro solo-mobile"
+        type="button"
+        (click)="tornaAllaPresentazione()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Torna indietro
+      </button>
+
       <div class="tabs">
         <button class="tab" type="button" [class.attiva]="scheda === 'accesso'" (click)="cambiaScheda('accesso')">
           Accedi
@@ -45,7 +79,14 @@
       <form (ngSubmit)="accedi()" *ngIf="scheda === 'accesso'">
         <div class="field">
           <label for="email">Email</label>
-          <input id="email" type="text" name="email" autocomplete="username" [(ngModel)]="email" />
+          <input
+            id="email"
+            type="text"
+            name="email"
+            autocomplete="username"
+            autofocus
+            [(ngModel)]="email"
+          />
         </div>
         <div class="field">
           <label for="password">Password</label>

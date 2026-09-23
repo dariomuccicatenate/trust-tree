@@ -8,7 +8,7 @@
   --surface-raised: #fafcfe;
   --ink: #0f2b52;
   --ink-soft: #40567c;
-  --ink-faint: #7c8fae;
+  --ink-faint: #5b7091;
   --line: #d2dded;
   --line-soft: #e3ebf5;
   --accent-trust: #0d47a1;
@@ -32,7 +32,7 @@
     --surface-raised: #12294a;
     --ink: #e8eefa;
     --ink-soft: #a8bcd9;
-    --ink-faint: #7288aa;
+    --ink-faint: #8fa5c4;
     --line: #1d3a63;
     --line-soft: #152f52;
     --accent-trust: #6fa3ec;
@@ -56,7 +56,7 @@
   --surface-raised: #12294a;
   --ink: #e8eefa;
   --ink-soft: #a8bcd9;
-  --ink-faint: #7288aa;
+  --ink-faint: #8fa5c4;
   --line: #1d3a63;
   --line-soft: #152f52;
   --accent-trust: #6fa3ec;
@@ -1326,4 +1326,261 @@ footer {
 
 .caricamento-nota {
   margin-top: 12px;
+}
+
+/* ---------- accesso su schermo stretto ---------- */
+.solo-mobile {
+  display: none;
+}
+
+.azioni-presentazione {
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-chiaro {
+  background: #fff;
+  border-color: #fff;
+  color: var(--accent-trust);
+  font-weight: 600;
+}
+
+.btn-trasparente {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.freccia {
+  width: 18px;
+  height: 18px;
+}
+
+.freccia-laterale {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.freccia-laterale svg {
+  width: 22px;
+  height: 22px;
+}
+
+.torna-indietro {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 14px;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.torna-indietro svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 760px) {
+  .access-shell {
+    min-height: auto;
+    padding-block: 12px;
+  }
+
+  .access-grid {
+    position: relative;
+    min-height: 62vh;
+  }
+
+  .access-grid:not(.mostra-form) .access-form-side {
+    display: none;
+  }
+
+  .access-grid.mostra-form .access-pitch,
+  .access-grid.mostra-form .freccia-laterale {
+    display: none;
+  }
+
+  .access-grid.mostra-form .access-form-side {
+    animation: entra-da-destra 0.22s ease-out;
+  }
+
+  .access-pitch {
+    padding: 28px 24px 26px;
+    min-height: 62vh;
+    justify-content: center;
+  }
+
+  .solo-mobile {
+    display: flex;
+  }
+
+  .azioni-presentazione {
+    flex-wrap: wrap;
+  }
+
+  .azioni-presentazione .btn {
+    flex: 1 1 140px;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+@keyframes entra-da-destra {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ---------- adattamento ai telefoni ---------- */
+@media (max-width: 760px) {
+  body {
+    font-size: 15.5px;
+  }
+
+  /* barra compatta: il claim e la frase lunga restano solo su schermo largo */
+  .topbar {
+    padding-block: 12px 10px;
+    gap: 8px;
+  }
+
+  .brand .tag,
+  .persona-row .solo-desktop {
+    display: none;
+  }
+
+  .brand h1 {
+    font-size: 1.2rem;
+  }
+
+  .topbar-actions {
+    gap: 2px;
+  }
+
+  .topbar-actions .btn {
+    padding: 8px;
+    font-size: 0.84rem;
+  }
+
+  .persona-row {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  /* i filtri prendono tutta la larghezza: niente select strette */
+  .filters {
+    gap: 10px;
+  }
+
+  .filters > * {
+    flex: 1 1 100%;
+    min-height: 44px;
+  }
+
+  /* la card diventa verticale, i punteggi su una riga dedicata */
+  .card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .card-scores {
+    justify-content: flex-start;
+  }
+
+  /* bersagli comodi da toccare */
+  .btn,
+  .tab,
+  .opt {
+    min-height: 44px;
+  }
+
+  .opt {
+    align-items: flex-start;
+  }
+
+  .wizard-nav {
+    flex-direction: column-reverse;
+  }
+
+  .wizard-nav .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .detail-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail-head .btn {
+    justify-content: center;
+  }
+
+  .bd-row {
+    grid-template-columns: 104px 1fr 34px;
+  }
+
+  .modal {
+    padding: 20px 18px;
+  }
+
+  .legend {
+    gap: 10px;
+  }
+
+  /* la freccia laterale non deve finire sopra al testo */
+  .access-pitch {
+    padding-right: 68px;
+  }
+}
+
+.wizard-passo {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+@media (max-width: 560px) {
+  /* sul telefono la formula estesa e' rumore: resta nella versione desktop */
+  .stat-tile .mono[style] {
+    display: none;
+  }
+
+  .access-pitch h2 {
+    font-size: 1.32rem;
+  }
+
+  .access-pitch p,
+  .access-pitch ul {
+    font-size: 0.86rem;
+  }
+
+  .stat-tile .stat-num {
+    font-size: 1.9rem;
+  }
+
+  .review-head {
+    gap: 6px;
+  }
 }

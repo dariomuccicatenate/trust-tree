@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
@@ -102,6 +102,8 @@ export class QuestionarioComponent implements OnInit {
       effetto: 'coefficiente 1,00',
     },
   ];
+
+  @ViewChild('messaggioErrore') messaggioErrore?: ElementRef<HTMLElement>;
 
   professionista: Professionista | null = null;
   utente: Utente | null = null;
@@ -253,6 +255,10 @@ export class QuestionarioComponent implements OnInit {
     const mancante = this.validaPasso();
     if (mancante) {
       this.errore = mancante;
+      // Su schermo piccolo il messaggio finirebbe fuori vista.
+      setTimeout(() =>
+        this.messaggioErrore?.nativeElement.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+      );
       return;
     }
 

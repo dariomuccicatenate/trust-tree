@@ -8,9 +8,10 @@
     {{ pr.nome }} · si completa in meno di due minuti
   </div>
 
-  <div class="wizard-progress">
+  <div class="wizard-progress" role="progressbar" [attr.aria-valuenow]="indice + 1" [attr.aria-valuemax]="passi.length">
     <span *ngFor="let p of passi; let i = index" [class.done]="i <= indice"></span>
   </div>
+  <div class="wizard-passo" *ngIf="passo !== 'fine'">Passo {{ indice + 1 }} di {{ passi.length - 1 }}</div>
 
   <div class="wizard-sezione" *ngIf="sezione as s">{{ s.codice }}. {{ s.titolo }}</div>
 
@@ -345,7 +346,7 @@
     </div>
   </ng-container>
 
-  <div class="error-note" *ngIf="errore">{{ errore }}</div>
+  <div class="error-note" *ngIf="errore" #messaggioErrore>{{ errore }}</div>
 
   <div class="wizard-nav" *ngIf="passo !== 'fine'">
     <button class="btn" type="button" (click)="indietro()" [disabled]="indice === 0">Indietro</button>
