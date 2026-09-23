@@ -1110,11 +1110,6 @@ footer {
   margin-block: 12px;
 }
 
-.file-input {
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-}
 
 /* ---------- contatto del professionista ---------- */
 .contatto {
@@ -1236,4 +1231,99 @@ footer {
   margin-top: 4px;
   font-size: 0.85rem;
   color: var(--ink);
+}
+
+/* ---------- caricamento del documento di verifica ---------- */
+.caricamento-blocco {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.caricamento-blocco .q-title {
+  margin-bottom: 12px;
+}
+
+.caricamento {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 20px;
+  border: 1.5px dashed var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.caricamento:hover,
+.caricamento.in-trascinamento {
+  border-color: var(--accent-relevance);
+  background: var(--accent-relevance-soft);
+}
+
+.caricamento-icona {
+  width: 42px;
+  height: 42px;
+  color: var(--accent-relevance);
+  margin-bottom: 4px;
+}
+
+.caricamento-titolo {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.caricamento-formati {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.caricamento-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.documento-scelto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  font-size: 0.88rem;
+}
+
+.documento-icona {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-relevance);
+  flex-shrink: 0;
+}
+
+.documento-nome {
+  flex: 1 1 160px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.documento-peso {
+  color: var(--ink-faint);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+.caricamento-nota {
+  margin-top: 12px;
 }

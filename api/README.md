@@ -106,13 +106,16 @@ conservazione (180 giorni dal caricamento).
 
 | Metodo | Percorso | Descrizione |
 |---|---|---|
-| GET | `/api/questionario` | struttura del questionario 1.0 e valori ammessi per ogni campo |
+| GET | `/api/questionario` | le 15 domande nelle sezioni A-E, con testi, obbligatorietà, opzioni e tabella dei livelli di verifica |
 
 ## Regole applicate
 
 Derivano dal "Questionario di referenza Trust Score 1.0":
 
 - lo stesso utente puo' lasciare piu' recensioni sullo stesso professionista;
+- domanda 2: `categoriaServizio` appartiene alla tassonomia controllata, `descrizioneLavoro` e'
+  facoltativa (max 150 caratteri) e la integra senza sostituirla;
+- domanda 4: `fasciaImporto` e' facoltativa e non entra nel punteggio;
 - `livelloVerifica = V0` e' una segnalazione senza esperienza personale: non accetta risposte
   al questionario e non entra nei conteggi delle esperienze valide;
 - per i livelli V1-V3 `qualita`, `richiamerebbe` e `consiglierebbe` sono obbligatorie;

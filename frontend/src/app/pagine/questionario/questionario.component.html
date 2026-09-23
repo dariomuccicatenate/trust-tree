@@ -242,17 +242,68 @@
       </div>
     </div>
 
-    <div class="q-block" *ngIf="dati.metodoVerifica === 'documento'">
+    <div class="q-block caricamento-blocco" *ngIf="dati.metodoVerifica === 'documento'">
       <div class="q-title">Carica preventivo, fattura, ricevuta o altra prova</div>
-      <input
-        class="file-input"
-        type="file"
-        accept="application/pdf,image/jpeg,image/png,image/webp"
-        (change)="selezionaDocumento($event)"
-      />
-      <div class="q-hint">
-        PDF, JPEG, PNG o WebP fino a 5 MB. I documenti caricati non sono pubblicati: vengono
-        conservati solo per il tempo necessario alla verifica.
+
+      <label
+        class="caricamento"
+        [class.in-trascinamento]="trascinamento"
+        (dragover)="suTrascinamento($event, true)"
+        (dragleave)="suTrascinamento($event, false)"
+        (drop)="suRilascio($event)"
+        *ngIf="!documento"
+      >
+        <svg class="caricamento-icona" viewBox="0 0 48 48" aria-hidden="true">
+          <path
+            d="M27 6H14a4 4 0 0 0-4 4v28a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V17L27 6Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linejoin="round"
+          />
+          <path d="M27 6v11h11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" />
+          <path
+            d="M24 34V22m0 0-5 5m5-5 5 5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span class="caricamento-titolo">Trascina qui il file o scegli dal dispositivo</span>
+        <span class="caricamento-formati">PDF, JPEG, PNG o WebP · fino a 5 MB</span>
+
+        <input
+          type="file"
+          class="caricamento-input"
+          accept="application/pdf,image/jpeg,image/png,image/webp"
+          (change)="selezionaDocumento($event)"
+        />
+      </label>
+
+      <div class="documento-scelto" *ngIf="documento as file">
+        <svg class="documento-icona" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9l-6-6Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path d="M13 3v6h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+        <span class="documento-nome">{{ file.name }}</span>
+        <span class="documento-peso">{{ dimensioneDocumento() }}</span>
+        <button class="btn btn-sm" type="button" (click)="rimuoviDocumento()">Rimuovi</button>
+      </div>
+
+      <div class="error-note" *ngIf="erroreDocumento">{{ erroreDocumento }}</div>
+
+      <div class="q-hint caricamento-nota">
+        I documenti caricati non sono pubblicati: vengono conservati solo per il tempo necessario
+        alla verifica.
       </div>
     </div>
 

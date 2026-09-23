@@ -192,9 +192,56 @@ export class QuestionarioComponent implements OnInit {
     return !this.motivoSelezionato(valore) && this.dati.motivi.length >= 2;
   }
 
+  trascinamento = false;
+  erroreDocumento = '';
+
+  private readonly tipiAmmessi = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+  private readonly dimensioneMassima = 5 * 1024 * 1024;
+
   selezionaDocumento(evento: Event): void {
     const input = evento.target as HTMLInputElement;
-    this.documento = input.files?.length ? input.files[0] : null;
+    this.accettaDocumento(input.files?.length ? input.files[0] : null);
+  }
+
+  suTrascinamento(evento: DragEvent, dentro: boolean): void {
+    evento.preventDefault();
+    this.trascinamento = dentro;
+  }
+
+  suRilascio(evento: DragEvent): void {
+    evento.preventDefault();
+    this.trascinamento = false;
+    this.accettaDocumento(evento.dataTransfer?.files?.length ? evento.dataTransfer.files[0] : null);
+  }
+
+  rimuoviDocumento(): void {
+    this.documento = null;
+    this.erroreDocumento = '';
+  }
+
+  dimensioneDocumento(): string {
+    const byte = this.documento?.size ?? 0;
+    if (byte > 1024 * 1024) return `${(byte / (1024 * 1024)).toFixed(1)} MB`;
+    if (byte >= 1024) return `${Math.round(byte / 1024)} KB`;
+    return `${byte} byte`;
+  }
+
+  /** Stessi limiti dell'API: si accorge subito del file sbagliato, senza aspettare l'invio. */
+  private accettaDocumento(file: File | null): void {
+    if (!file) {
+      return;
+    }
+    if (!this.tipiAmmessi.includes(file.type)) {
+      this.erroreDocumento = 'Formato non ammesso: carica un PDF, JPEG, PNG o WebP.';
+      return;
+    }
+    if (file.size > this.dimensioneMassima) {
+      this.erroreDocumento = 'Il file supera i 5 MB.';
+      return;
+    }
+
+    this.documento = file;
+    this.erroreDocumento = '';
   }
 
   indietro(): void {

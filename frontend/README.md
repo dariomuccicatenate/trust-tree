@@ -22,7 +22,7 @@ Credenziali di sviluppo (dal seed): `admin@trusttree.local / admin1234` per l'am
 | `/login` | libero | due schede: **Accedi** e **Registrati** (nome, cognome, email, password e, facoltativi, condominio/quartiere/comune). Le utenze di prova entrano con un clic; dopo la registrazione l'utente e' gia' autenticato. La barra in alto mostra solo logo e nome, centrati |
 | `/ricerca` | autenticato | filtri per testo, categoria e zona; risultati divisi tra reputazione pubblicata (ordinati per `0,6 × Trust Score + 0,4 × Trust Relevance`) e reputazione in costruzione |
 | `/professionisti/:id` | autenticato | contatto del professionista, Trust Score e Trust Relevance con formula, componenti, motivazione, referenze, conteggi di verifica. Il contatto è modificabile solo dall'amministratore, direttamente dalla scheda |
-| `/professionisti/:id/referenza` | autenticato | questionario 1.0 a passi; la prima domanda fa da filtro (nessun utilizzo personale → segnalazione V0) e, se la conferma è documentale, carica il file |
+| `/professionisti/:id/referenza` | autenticato | questionario 1.0: un passo per sezione (A-E), domande numerate come nel documento, prima domanda come filtro (nessun utilizzo personale → segnalazione V0), categoria da tassonomia + descrizione facoltativa, fascia di importo facoltativa, massimo 2 motivi, commento moderato, tabella dei livelli di verifica e caricamento del documento |
 | `/admin` | solo admin | verifica dei documenti caricati e inserimento dei professionisti |
 
 La modale «Come funziona» mostra le due formule e spiega la differenza tra i punteggi.
@@ -35,6 +35,13 @@ La modale «Come funziona» mostra le due formule e spiega la differenza tra i p
   diventa verificata) oppure «Rifiuta» (torna a V1 dichiarata), con nota facoltativa.
 - **Aggiungi un professionista**: nome, categoria, telefono e area operativa. Il profilo nasce con
   reputazione in costruzione: l'inserimento non genera reputazione.
+
+## Categorie dei servizi
+
+Tassonomia unica per filtro di ricerca, questionario e inserimento dei professionisti
+(`core/etichette.ts`, stessa lista dell'API e dei CHECK del database): idraulico, elettricista,
+fabbro, muratore, imbianchino, giardiniere, impresa di pulizie, spurghista, tecnico caldaie,
+disinfestatore, tecnico ascensorista.
 
 ## Contatto del professionista
 

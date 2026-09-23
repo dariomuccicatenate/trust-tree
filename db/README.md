@@ -58,6 +58,7 @@ Migrazioni applicate:
 |---|---|
 | `001_init.sql` | le tre tabelle e i vincoli del questionario 1.0 |
 | `002_login_e_documenti.sql` | credenziali e ruolo sull'utente, documento di verifica sulla recensione |
+| `003_questionario_completo.sql` | descrizione del lavoro e fascia di importo (domande 2 e 4), tassonomia controllata delle categorie |
 
 Regole applicate a livello di database:
 
@@ -69,4 +70,7 @@ Regole applicate a livello di database:
   negli altri livelli `qualita`, `richiamerebbe` e `consiglierebbe` sono obbligatorie;
 - `stato = 'esclusa'` toglie la recensione dai conteggi senza cancellarla;
 - `documento_stato` diverso da `assente` presuppone un file caricato, il cui percorso non viene
-  mai esposto dall'API.
+  mai esposto dall'API;
+- `categoria_servizio` (recensione) e `categoria` (professionista) accettano solo i valori della
+  tassonomia: idraulico, elettricista, fabbro, muratore, imbianchino, giardiniere, impresa_pulizie,
+  spurghista, tecnico_caldaie, disinfestatore, tecnico_ascensorista.

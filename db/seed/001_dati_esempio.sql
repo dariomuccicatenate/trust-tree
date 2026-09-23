@@ -46,111 +46,112 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Mario Rossi: reputazione pubblicata, due referenze nel Condominio Girasole.
 INSERT INTO recensione (
-    utente_id, professionista_id, categoria_servizio, periodo_utilizzo,
-    puntualita, rispetto_prezzo, completamento, qualita, correttezza,
+    utente_id, professionista_id, categoria_servizio, descrizione_lavoro, periodo_utilizzo,
+    fascia_importo, puntualita, rispetto_prezzo, completamento, qualita, correttezza,
     richiamerebbe, consiglierebbe, problemi_successivi, motivi, commento, livello_verifica,
     creato_il
 ) VALUES
     ('3f6d1b8e-9c1a-4f2b-8d3e-1a2b3c4d5e6f', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'riparazione perdita', 'ultimi_3_mesi',
-     'si', 'si', 'si', 'ottima', 'ottima',
+     'idraulico', 'riparazione perdita', 'ultimi_3_mesi',
+     '251_500', 'si', 'si', 'si', 'ottima', 'ottima',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['affidabilita', 'rapidita'], 'Intervento risolto in giornata.', 'V2',
      now() - interval '37 days'),
     ('7a2c4e60-5b3d-4c81-9f2a-6d8e0b1c3a55', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'sostituzione caldaia', '6_12_mesi',
-     'ritardo_accettabile', 'si_con_variazioni_concordate', 'si', 'buona', 'ottima',
+     'idraulico', 'sostituzione caldaia', '6_12_mesi',
+     '1001_5000', 'ritardo_accettabile', 'si_con_variazioni_concordate', 'si', 'buona', 'ottima',
      'probabilmente_si', 'sicuramente_si', 'risolti_tempestivamente',
      ARRAY['qualita', 'correttezza'], NULL, 'V1',
      now() - interval '74 days'),
     ('c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'rifacimento bagno', '3_6_mesi',
-     'si', 'si', 'si', 'ottima', 'buona',
+     'idraulico', 'rifacimento bagno', '3_6_mesi',
+     '501_1000', 'si', 'si', 'si', 'ottima', 'buona',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['qualita', 'affidabilita'], 'Preventivo rispettato al centesimo.', 'V3',
      now() - interval '111 days'),
     ('2b9c8d7e-6f50-4a3b-9c2d-1e0f9a8b7c6d', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'riparazione perdita', '1_2_anni',
-     'si', 'si', 'si_dopo_correzione', 'buona', 'buona',
+     'idraulico', 'riparazione perdita', '1_2_anni',
+     NULL, 'si', 'si', 'si_dopo_correzione', 'buona', 'buona',
      'probabilmente_si', 'probabilmente_si', 'risolti_tempestivamente',
      ARRAY['disponibilita'], NULL, 'V1',
      now() - interval '148 days'),
     ('4d3c2b1a-0f9e-4d8c-8b7a-6950e4f3d2c1', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'sostituzione rubinetti', '6_12_mesi',
-     'si', 'si', 'si', 'ottima', 'ottima',
+     'idraulico', 'sostituzione rubinetti', '6_12_mesi',
+     '100_250', 'si', 'si', 'si', 'ottima', 'ottima',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['rapidita', 'prezzo'], 'Richiamato due volte, sempre puntuale.', 'V2',
      now() - interval '185 days'),
     ('8e7d6c5b-4a39-4b2c-9d1e-0f8a7b6c5d4e', '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b',
-     'manutenzione impianto', 'oltre_2_anni',
-     'ritardo_accettabile', 'si', 'si', 'buona', 'buona',
+     'idraulico', 'manutenzione impianto', 'oltre_2_anni',
+     'meno_100', 'ritardo_accettabile', 'si', 'si', 'buona', 'buona',
      'probabilmente_si', 'probabilmente_si', 'nessuno',
      ARRAY['correttezza'], NULL, 'V1',
      now() - interval '222 days');
 
 -- Teknoass: reputazione pubblicata ma fuori dal condominio e dal quartiere di Giulia.
 INSERT INTO recensione (
-    utente_id, professionista_id, categoria_servizio, periodo_utilizzo,
-    puntualita, rispetto_prezzo, completamento, qualita, correttezza,
+    utente_id, professionista_id, categoria_servizio, descrizione_lavoro, periodo_utilizzo,
+    fascia_importo, puntualita, rispetto_prezzo, completamento, qualita, correttezza,
     richiamerebbe, consiglierebbe, problemi_successivi, motivi, commento, livello_verifica,
     creato_il
 ) VALUES
     ('4d3c2b1a-0f9e-4d8c-8b7a-6950e4f3d2c1', '6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f',
-     'riparazione scarico', 'ultimi_3_mesi',
-     'si', 'si', 'si', 'ottima', 'ottima',
+     'idraulico', 'riparazione scarico', 'ultimi_3_mesi',
+     '251_500', 'si', 'si', 'si', 'ottima', 'ottima',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['affidabilita', 'qualita'], NULL, 'V2',
      now() - interval '259 days'),
     ('8e7d6c5b-4a39-4b2c-9d1e-0f8a7b6c5d4e', '6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f',
-     'sostituzione boiler', '3_6_mesi',
-     'si', 'si', 'si', 'ottima', 'ottima',
+     'idraulico', 'sostituzione boiler', '3_6_mesi',
+     '1001_5000', 'si', 'si', 'si', 'ottima', 'ottima',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['rapidita'], 'Lavoro impeccabile.', 'V1',
      now() - interval '296 days'),
     ('c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f', '6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f',
-     'riparazione perdita', '6_12_mesi',
-     'si', 'si_con_variazioni_concordate', 'si', 'buona', 'ottima',
+     'idraulico', 'riparazione perdita', '6_12_mesi',
+     '501_1000', 'si', 'si_con_variazioni_concordate', 'si', 'buona', 'ottima',
      'probabilmente_si', 'sicuramente_si', 'nessuno',
      ARRAY['correttezza', 'prezzo'], NULL, 'V2',
      now() - interval '333 days'),
     ('2b9c8d7e-6f50-4a3b-9c2d-1e0f9a8b7c6d', '6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f',
-     'manutenzione caldaia', '1_2_anni',
-     'ritardo_accettabile', 'si', 'si', 'buona', 'buona',
+     'idraulico', 'manutenzione caldaia', '1_2_anni',
+     NULL, 'ritardo_accettabile', 'si', 'si', 'buona', 'buona',
      'probabilmente_si', 'probabilmente_si', 'risolti_con_difficolta',
      ARRAY['disponibilita'], NULL, 'V1',
      now() - interval '370 days'),
     ('3f6d1b8e-9c1a-4f2b-8d3e-1a2b3c4d5e6f', '6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f',
-     'riparazione scarico', 'oltre_2_anni',
-     'si', 'si', 'si', 'buona', 'buona',
+     'idraulico', 'riparazione scarico', 'oltre_2_anni',
+     '100_250', 'si', 'si', 'si', 'buona', 'buona',
      'probabilmente_si', 'probabilmente_si', 'nessuno',
      ARRAY['prezzo'], NULL, 'V1',
      now() - interval '407 days');
 
 -- Luca Bianchi: sotto soglia, resta "reputazione in costruzione".
 INSERT INTO recensione (
-    utente_id, professionista_id, categoria_servizio, periodo_utilizzo,
-    puntualita, rispetto_prezzo, completamento, qualita, correttezza,
+    utente_id, professionista_id, categoria_servizio, descrizione_lavoro, periodo_utilizzo,
+    fascia_importo, puntualita, rispetto_prezzo, completamento, qualita, correttezza,
     richiamerebbe, consiglierebbe, problemi_successivi, motivi, commento, livello_verifica,
     creato_il
 ) VALUES
     ('c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f', '9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d',
-     'impianto luci', '1_2_anni',
-     'si', 'si', 'si_dopo_correzione', 'buona', 'buona',
+     'elettricista', 'impianto luci', '1_2_anni',
+     'meno_100', 'si', 'si', 'si_dopo_correzione', 'buona', 'buona',
      'probabilmente_si', 'probabilmente_si', 'risolti_con_difficolta',
      ARRAY['prezzo'], NULL, 'V1',
      now() - interval '444 days'),
     ('2b9c8d7e-6f50-4a3b-9c2d-1e0f9a8b7c6d', '9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d',
-     'quadro elettrico', '3_6_mesi',
-     'si', 'si', 'si', 'ottima', 'ottima',
+     'elettricista', 'quadro elettrico', '3_6_mesi',
+     '251_500', 'si', 'si', 'si', 'ottima', 'ottima',
      'sicuramente_si', 'sicuramente_si', 'nessuno',
      ARRAY['qualita'], NULL, 'V2',
      now() - interval '481 days');
 
 -- Segnalazione senza esperienza personale (V0): nessuna risposta, nessun effetto sul punteggio.
 INSERT INTO recensione (
-    utente_id, professionista_id, categoria_servizio, periodo_utilizzo, livello_verifica
+    utente_id, professionista_id, categoria_servizio, descrizione_lavoro, periodo_utilizzo,
+    livello_verifica
 ) VALUES
     ('8e7d6c5b-4a39-4b2c-9d1e-0f8a7b6c5d4e', '9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d',
-     'sopralluogo', 'ultimi_3_mesi', 'V0');
+     'elettricista', 'sopralluogo in cantiere', 'ultimi_3_mesi', 'V0');
 
 COMMIT;
