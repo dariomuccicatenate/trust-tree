@@ -1,0 +1,87 @@
+<div class="filters">
+  <input
+    type="search"
+    class="grow"
+    placeholder="Cerca per nome o servizio, es. idraulico…"
+    [(ngModel)]="testo"
+    (ngModelChange)="filtriCambiati()"
+  />
+  <select [(ngModel)]="categoria" (ngModelChange)="filtriCambiati()">
+    <option value="">Tutte le categorie</option>
+    <option *ngFor="let c of categorie" [value]="c.valore">{{ c.etichetta }}</option>
+  </select>
+  <select [(ngModel)]="zona" (ngModelChange)="filtriCambiati()">
+    <option value="">Tutte le zone</option>
+    <option *ngFor="let z of zone" [value]="z">{{ z }}</option>
+  </select>
+</div>
+
+<div class="error-note" *ngIf="errore">{{ errore }}</div>
+<div class="result-count" *ngIf="!caricamento">{{ totale }} professionisti trovati</div>
+<div class="building-note" *ngIf="caricamento">Caricamento in corso…</div>
+
+<ng-container *ngIf="!caricamento">
+  <div class="section-label">Reputazione pubblicata</div>
+  <div class="card-list">
+    <div class="building-note" *ngIf="!pubblicati.length">
+      Nessun professionista con reputazione pubblicata in questa selezione.
+    </div>
+
+    <button
+      class="card"
+      type="button"
+      *ngFor="let r of pubblicati"
+      [routerLink]="['/professionisti', r.professionista.id]"
+    >
+      <div class="card-main">
+        <div class="card-title-row">
+          <span class="card-title">{{ r.professionista.nome }}</span>
+          <span class="pill pill-neutral">{{ etichettaCategoria(r.professionista.categoria) }}</span>
+          <span class="pill pill-warn" *ngIf="r.trustScore.fontiConcentrate">fonti poco indipendenti</span>
+        </div>
+        <div class="card-sub">
+          {{ descrizione(r) }} · {{ r.trustScore.esperienzeValide }} esperienze valide ·
+          {{ r.trustScore.solidita }}
+        </div>
+        <div class="card-explain" *ngIf="r.trustRelevance">
+          {{ r.trustRelevance.etichetta }} — {{ r.trustRelevance.motivazioni[0] }}
+        </div>
+      </div>
+      <div class="card-scores">
+        <div class="score-chip trust">
+          <span class="num mono">{{ r.trustScore.punteggio }}</span>
+          <span class="lbl">Trust</span>
+        </div>
+        <div class="score-chip relevance" *ngIf="r.trustRelevance">
+          <span class="num mono">{{ r.trustRelevance.punteggio }}</span>
+          <span class="lbl">Rilevanza</span>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <div class="section-label">Reputazione in costruzione</div>
+  <div class="card-list">
+    <div class="building-note" *ngIf="!inCostruzione.length">
+      Nessun professionista in fase di costruzione della reputazione in questa selezione.
+    </div>
+
+    <button
+      class="card"
+      type="button"
+      *ngFor="let r of inCostruzione"
+      [routerLink]="['/professionisti', r.professionista.id]"
+    >
+      <div class="card-main">
+        <div class="card-title-row">
+          <span class="card-title">{{ r.professionista.nome }}</span>
+          <span class="pill pill-warn">Reputazione in costruzione</span>
+        </div>
+        <div class="card-sub">
+          {{ descrizione(r) }} · {{ r.trustScore.esperienzeValide }} esperienze da
+          {{ r.trustScore.referentiDistinti }} persone
+        </div>
+      </div>
+    </button>
+  </div>
+</ng-container>

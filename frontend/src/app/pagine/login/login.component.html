@@ -1,0 +1,156 @@
+<div class="access-shell">
+  <div class="access-grid">
+    <section class="access-pitch" aria-labelledby="titolo-pitch">
+      <h2 id="titolo-pitch">Professionisti di fiducia, scelti su referenze verificate</h2>
+      <p>
+        Trust Tree raccoglie referenze di lavori realmente eseguiti da idraulici, elettricisti,
+        fabbri e imprese edili: valutazioni di chi li ha usati davvero, non recensioni anonime.
+        L'iscrizione di un professionista non genera reputazione.
+      </p>
+      <ul>
+        <li>
+          <strong>Trust Score</strong>: quanto è affidabile un professionista, calcolato su
+          referenze verificate di esperienze reali.
+        </li>
+        <li>
+          <strong>Trust Relevance</strong>: quanto quelle referenze sono vicine a te, a partire da
+          chi lo ha già usato nel tuo condominio.
+        </li>
+        <li>
+          <strong>Nessun punteggio acquistabile</strong>: abbonamenti e sponsorizzazioni non
+          cambiano la reputazione.
+        </li>
+      </ul>
+      <p>Il passaparola del tuo palazzo, con un punteggio trasparente.</p>
+    </section>
+
+    <div class="access-form-side">
+      <div class="tabs">
+        <button class="tab" type="button" [class.attiva]="scheda === 'accesso'" (click)="cambiaScheda('accesso')">
+          Accedi
+        </button>
+        <button
+          class="tab"
+          type="button"
+          [class.attiva]="scheda === 'registrazione'"
+          (click)="cambiaScheda('registrazione')"
+        >
+          Registrati
+        </button>
+      </div>
+
+      <div class="error-note" *ngIf="errore">{{ errore }}</div>
+
+      <!-- accesso -->
+      <form (ngSubmit)="accedi()" *ngIf="scheda === 'accesso'">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="text" name="email" autocomplete="username" [(ngModel)]="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+          />
+        </div>
+        <button class="btn btn-primary access-submit" type="submit" [disabled]="invio">
+          {{ invio ? 'Accesso in corso…' : 'Entra' }}
+        </button>
+      </form>
+
+      <!-- registrazione -->
+      <form (ngSubmit)="registrati()" *ngIf="scheda === 'registrazione'">
+        <div class="due-campi">
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" name="nome" [(ngModel)]="nuovo.nome" />
+          </div>
+          <div class="field">
+            <label for="cognome">Cognome</label>
+            <input id="cognome" type="text" name="cognome" [(ngModel)]="nuovo.cognome" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email-nuova">Email</label>
+          <input
+            id="email-nuova"
+            type="text"
+            name="emailNuova"
+            autocomplete="email"
+            [(ngModel)]="nuovo.email"
+          />
+        </div>
+
+        <div class="due-campi">
+          <div class="field">
+            <label for="password-nuova">Password</label>
+            <input
+              id="password-nuova"
+              type="password"
+              name="passwordNuova"
+              autocomplete="new-password"
+              [(ngModel)]="nuovo.password"
+            />
+          </div>
+          <div class="field">
+            <label for="conferma">Conferma</label>
+            <input
+              id="conferma"
+              type="password"
+              name="conferma"
+              autocomplete="new-password"
+              [(ngModel)]="nuovo.conferma"
+            />
+          </div>
+        </div>
+        <div class="field-hint">Almeno 8 caratteri.</div>
+
+        <div class="field">
+          <label for="condominio">Condominio</label>
+          <input id="condominio" type="text" name="condominio" [(ngModel)]="nuovo.condominio" />
+          <div class="field-hint centrata">
+            Facoltativo, ma è ciò che rende rilevanti per te le referenze dei tuoi vicini.
+          </div>
+        </div>
+
+        <div class="due-campi">
+          <div class="field">
+            <label for="quartiere">Quartiere</label>
+            <input id="quartiere" type="text" name="quartiere" [(ngModel)]="nuovo.quartiere" />
+          </div>
+          <div class="field">
+            <label for="comune">Comune</label>
+            <input id="comune" type="text" name="comune" [(ngModel)]="nuovo.comune" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary access-submit" type="submit" [disabled]="invio">
+          {{ invio ? 'Registrazione in corso…' : 'Crea account' }}
+        </button>
+      </form>
+
+      <ng-container *ngIf="scheda === 'accesso'">
+        <div class="access-divider">Credenziali di prova</div>
+        <div class="quick-accounts">
+          <button class="quick-account" type="button" (click)="provaAccount('admin@trusttree.local', 'admin1234')">
+            <span>admin@trusttree.local</span>
+            <span class="meta">amministratore</span>
+          </button>
+          <button class="quick-account" type="button" (click)="provaAccount('giulia.neri@example.com', 'trust1234')">
+            <span>giulia.neri@example.com</span>
+            <span class="meta">residente, Condominio Girasole</span>
+          </button>
+          <button class="quick-account" type="button" (click)="provaAccount('paolo.rizzo@example.com', 'trust1234')">
+            <span>paolo.rizzo@example.com</span>
+            <span class="meta">utente senza condominio</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

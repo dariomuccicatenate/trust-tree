@@ -1,0 +1,90 @@
+<div class="topbar">
+  <div class="brand-row" [class.brand-centrata]="suLogin">
+    <div class="brand">
+      <span class="mark">🤝</span>
+      <h1><a routerLink="/ricerca" style="text-decoration: none">Trust Tree</a></h1>
+      <span class="tag" *ngIf="!suLogin">referenze verificate di prestazioni realmente eseguite</span>
+    </div>
+    <div class="topbar-actions" *ngIf="!suLogin">
+      <a class="btn btn-ghost" routerLink="/ricerca" routerLinkActive="btn" *ngIf="utente">Ricerca</a>
+      <a class="btn btn-ghost" routerLink="/admin" routerLinkActive="btn" *ngIf="auth.admin">
+        Amministrazione
+      </a>
+      <button class="btn btn-ghost" type="button" (click)="infoAperta = true">Come funziona</button>
+      <button class="btn btn-ghost" type="button" (click)="esci()" *ngIf="utente">Esci</button>
+    </div>
+  </div>
+
+  <div class="persona-row" *ngIf="utente">
+    <label>Accesso</label>
+    <span>{{ utente.nome }} {{ utente.cognome }}</span>
+    <span class="pill pill-good" *ngIf="utente.ruolo === 'admin'">amministratore</span>
+    <span class="persona-meta" *ngIf="zona(utente)">{{ zona(utente) }}</span>
+    <span class="persona-meta">La rilevanza delle referenze è calcolata per questo utente.</span>
+  </div>
+</div>
+
+<main>
+  <router-outlet></router-outlet>
+
+  <footer>
+    Trust Tree — prototipo di validazione. Trust Score e Trust Relevance sono calcolati dall'API con
+    i pesi della versione 1.0, ancora da ricalibrare sul test pilota.
+  </footer>
+</main>
+
+<div class="modal-backdrop" *ngIf="infoAperta" (click)="infoAperta = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Come funziona</h2>
+    <p>
+      Su ogni professionista trovi due numeri. Rispondono a due domande diverse, ed è importante non
+      confonderle.
+    </p>
+
+    <div class="legend">
+      <div class="legend-item trust">
+        <b>Trust Score — «Lavora bene?»</b>
+        <p style="margin-top: 6px">
+          Un voto da 0 a 100 uguale per tutti, costruito solo con le referenze di chi lo ha davvero
+          chiamato: puntualità, prezzo rispettato, qualità del lavoro e, soprattutto, se lo
+          consiglierebbero a un amico.
+        </p>
+      </div>
+      <div class="legend-item relevance">
+        <b>Trust Relevance — «Conta per me?»</b>
+        <p style="margin-top: 6px">
+          Cambia da persona a persona. Se un professionista è già stato usato da qualcuno del tuo
+          condominio, per te vale molto più di tante referenze di sconosciuti dall'altra parte della
+          città.
+        </p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 8px">In breve</h3>
+    <ul class="spiegazione">
+      <li>
+        Il voto compare solo quando ci sono <b>almeno 5 esperienze di 3 persone diverse</b>: prima
+        leggi «reputazione in costruzione». Serve a evitare il 100/100 basato su due amici.
+      </li>
+      <li>
+        Le referenze recenti pesano più di quelle vecchie, e quelle con una prova (fattura,
+        ricevuta, lavoro passato dalla piattaforma) più di quelle solo dichiarate.
+      </li>
+      <li>
+        Nella ricerca mettiamo in alto chi unisce un buon voto generale a referenze vicine a te.
+        <b>Nessuno può pagare per salire</b>: abbonamenti e sponsorizzazioni non toccano i punteggi.
+      </li>
+      <li>
+        Se lasci una referenza, il punteggio si aggiorna subito: bastano due minuti e aiuti i tuoi
+        vicini a scegliere.
+      </li>
+    </ul>
+
+    <p class="esempio">
+      Per esempio: <b>91</b> e <b>86</b> significa «lavora bene, e lo ha già usato qualcuno vicino a
+      te».
+    </p>
+
+    <button class="btn btn-primary" type="button" (click)="infoAperta = false">Ho capito</button>
+  </div>
+</div>

@@ -1,0 +1,176 @@
+<button class="back-link" type="button" routerLink="/ricerca">← Torna alla ricerca</button>
+
+<div class="error-note" *ngIf="errore">{{ errore }}</div>
+<div class="building-note" *ngIf="caricamento">Caricamento in corso…</div>
+
+<ng-container *ngIf="professionista as pr">
+  <div class="detail-head">
+    <div>
+      <h2>{{ pr.nome }}</h2>
+      <div class="detail-meta">
+        {{ testo(pr.categoria) }}
+        <span *ngIf="zonaProfessionista()"> · {{ zonaProfessionista() }}</span>
+      </div>
+      <!-- contatto: visibile a tutti, modificabile solo dall'amministratore -->
+      <div class="contatto" *ngIf="!modificaContatto">
+        <span *ngIf="pr.telefono">
+          Contatto: <a class="contatto-numero" [href]="'tel:' + pr.telefono">{{ pr.telefono }}</a>
+        </span>
+        <span class="contatto-assente" *ngIf="!pr.telefono">Contatto non ancora disponibile</span>
+        <button class="btn btn-sm" type="button" *ngIf="admin" (click)="apriModificaContatto()">
+          {{ pr.telefono ? 'Modifica contatto' : 'Aggiungi contatto' }}
+        </button>
+      </div>
+
+      <div class="contatto" *ngIf="modificaContatto">
+        <input
+          type="text"
+          inputmode="tel"
+          placeholder="+39 333 1234567"
+          [(ngModel)]="contatto"
+          style="min-width: 200px"
+        />
+        <button
+          class="btn btn-primary btn-sm"
+          type="button"
+          [disabled]="salvataggioContatto"
+          (click)="salvaContatto()"
+        >
+          {{ salvataggioContatto ? 'Salvataggio…' : 'Salva' }}
+        </button>
+        <button class="btn btn-sm" type="button" (click)="annullaContatto()">Annulla</button>
+      </div>
+
+      <div class="contatto-esito" *ngIf="esitoContatto">{{ esitoContatto }}</div>
+
+      <div class="detail-meta" *ngIf="trustScore">
+        {{ trustScore.esperienzeValide }} esperienze valide da
+        {{ trustScore.referentiDistinti }} persone
+        <span *ngIf="segnalazioni.length"> · {{ segnalazioni.length }} segnalazioni senza valore reputazionale</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" type="button" [routerLink]="['/professionisti', pr.id, 'referenza']">
+      Lascia una referenza
+    </button>
+  </div>
+
+  <div class="info-note" *ngIf="trustScore && !trustScore.pubblicato">
+    Servono almeno <b>5 esperienze valide da 3 persone diverse</b> prima che il Trust Score venga
+    pubblicato. Al momento: {{ trustScore.esperienzeValide }} esperienze da
+    {{ trustScore.referentiDistinti }} persone.
+  </div>
+
+  <div class="stat-row" *ngIf="trustScore?.pubblicato">
+    <div class="stat-tile trust">
+      <div class="stat-top"><span class="stat-name">Trust Score</span></div>
+      <div class="stat-num mono">{{ trustScore?.punteggio }}<small>/100</small></div>
+      <div class="stat-desc">
+        {{ trustScore?.solidita
+        }}<span *ngIf="trustScore?.fontiConcentrate"> — segnalato: fonti poco indipendenti</span>
+      </div>
+      <div class="verifica-meta mono" style="font-size: 0.72rem; margin-top: 8px">
+        TS = 0,25C + 0,20R + 0,15Q + 0,15E + 0,10P + 0,05A + 0,05PR + 0,05V
+      </div>
+      <div class="breakdown">
+        <div class="bd-row" *ngFor="let c of componentiTS">
+          <span>{{ c.nome }}</span>
+          <div class="bd-track">
+            <div class="bd-fill trust" [style.width]="larghezza(valoreTS(c.chiave))"></div>
+          </div>
+          <span class="bd-val">{{ arrotonda(valoreTS(c.chiave)) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-tile relevance" *ngIf="trustRelevance as tr">
+      <div class="stat-top"><span class="stat-name">Trust Relevance</span></div>
+      <div class="stat-num mono">{{ tr.punteggio }}<small>/100</small></div>
+      <div class="stat-desc">
+        {{ tr.etichetta }}<span *ngIf="utente"> · per {{ utente.nome }} {{ utente.cognome }}</span>
+      </div>
+      <div class="verifica-meta mono" style="font-size: 0.72rem; margin-top: 8px">
+        TR = 0,45P + 0,25C + 0,15I + 0,10M + 0,05G · S = {{ tr.sommaPesiRelazionali }}
+      </div>
+      <div class="breakdown">
+        <div class="bd-row" *ngFor="let c of componentiTR">
+          <span>{{ c.nome }}</span>
+          <div class="bd-track">
+            <div class="bd-fill relevance" [style.width]="larghezza(valoreTR(c.chiave))"></div>
+          </div>
+          <span class="bd-val">{{ arrotonda(valoreTR(c.chiave)) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-note" *ngIf="trustRelevance as tr">
+    <b>Perché questo risultato:</b> {{ tr.motivazioni.join(' ') }}
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="panel">
+        <h3>Referenze ({{ valide.length }})</h3>
+        <div class="stats-inline">
+          <div><b>{{ percentuale('richiamerebbe') }}%</b> lo richiamerebbe</div>
+          <div><b>{{ percentuale('consiglierebbe') }}%</b> lo consiglierebbe</div>
+          <div *ngIf="motiviPrincipali().length">
+            Motivi principali:
+            <b>{{ motiviPrincipali().join(", ") }}</b>
+          </div>
+        </div>
+
+        <div class="building-note" *ngIf="!valide.length" style="margin-top: 10px">
+          Nessuna referenza registrata: sii il primo a lasciarne una.
+        </div>
+
+        <div class="review" *ngFor="let r of valide">
+          <div class="review-head">
+            <span class="review-who">
+              {{ provenienza(r) }} · {{ testo(r.periodoUtilizzo) }} · {{ testo(r.categoriaServizio) }}
+              <span *ngIf="r.fasciaImporto"> · {{ testo(r.fasciaImporto) }}</span>
+            </span>
+            <span>
+              <span class="pill pill-warn" *ngIf="r.documentoStato === 'in_attesa'">documento in verifica</span>
+              <span class="pill" [ngClass]="badgeVerifica(r.livelloVerifica).pill" style="margin-left: 6px">
+                {{ badgeVerifica(r.livelloVerifica).testo }}
+              </span>
+            </span>
+          </div>
+          <div class="review-lavoro" *ngIf="r.descrizioneLavoro">{{ r.descrizioneLavoro }}</div>
+          <div class="review-quote" *ngIf="r.commento">"{{ r.commento }}"</div>
+          <div class="review-tags" *ngIf="r.motivi.length">
+            <span class="tag" *ngFor="let m of r.motivi">{{ testo(m) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3>Verifica e provenienza</h3>
+        <div class="stats-inline" style="flex-direction: column; gap: 8px">
+          <div>V1 dichiarate: <b>{{ conteggioVerifica('V1') }}</b></div>
+          <div>V2 verificate: <b>{{ conteggioVerifica('V2') }}</b></div>
+          <div>V3 transazione in piattaforma: <b>{{ conteggioVerifica('V3') }}</b></div>
+          <div *ngIf="riepilogo">
+            Conteggi dell'API: <b>{{ riepilogo.esperienzeValide }}</b> esperienze valide da
+            <b>{{ riepilogo.referentiDistinti }}</b> persone
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" *ngIf="escluse.length || segnalazioni.length">
+        <h3>Fuori dal calcolo</h3>
+        <div class="review-flag" *ngIf="escluse.length">
+          {{ escluse.length }} referenze escluse o sotto verifica: non partecipano al punteggio fino
+          all'esito del controllo.
+        </div>
+        <div class="review-flag" *ngIf="segnalazioni.length">
+          {{ segnalazioni.length }} segnalazioni senza esperienza personale (V0): non generano
+          reputazione.
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

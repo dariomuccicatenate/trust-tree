@@ -1,0 +1,305 @@
+<div class="wizard" *ngIf="professionista as pr">
+  <button class="back-link" type="button" [routerLink]="['/professionisti', pr.id]">
+    ← Annulla e torna alla scheda
+  </button>
+
+  <h2>Questionario di referenza</h2>
+  <div class="wizard-sottotitolo">
+    {{ pr.nome }} · si completa in meno di due minuti
+  </div>
+
+  <div class="wizard-progress">
+    <span *ngFor="let p of passi; let i = index" [class.done]="i <= indice"></span>
+  </div>
+
+  <div class="wizard-sezione" *ngIf="sezione as s">{{ s.codice }}. {{ s.titolo }}</div>
+
+  <!-- A1 -->
+  <ng-container *ngIf="passo === 'gate'">
+    <div class="q-block">
+      <div class="q-numero">Domanda 1</div>
+      <div class="q-title">Hai utilizzato personalmente questo professionista o fornitore?</div>
+      <div class="opt-list">
+        <label class="opt" [class.selected]="utilizzoPersonale === 'si'">
+          <input type="radio" name="utilizzoPersonale" value="si" [(ngModel)]="utilizzoPersonale" />
+          Sì <span class="opt-nota">— prosegue il questionario</span>
+        </label>
+        <label class="opt" [class.selected]="utilizzoPersonale === 'no'">
+          <input type="radio" name="utilizzoPersonale" value="no" [(ngModel)]="utilizzoPersonale" />
+          No
+          <span class="opt-nota">
+            — può essere registrata soltanto una segnalazione, senza valore reputazionale
+          </span>
+        </label>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- A2, A3, A4 -->
+  <ng-container *ngIf="passo === 'servizio'">
+    <div class="info-note" *ngIf="segnalazione">
+      Stai registrando una <b>segnalazione</b>: indica solo di che servizio si trattava e quando.
+      Non genera reputazione.
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 2</div>
+      <div class="q-title">Quale servizio ha svolto?</div>
+      <select style="width: 100%" name="categoria" [(ngModel)]="dati.categoriaServizio">
+        <option value="" disabled>Seleziona la categoria</option>
+        <option *ngFor="let c of categorie" [value]="c.valore">{{ c.etichetta }}</option>
+      </select>
+
+      <div class="q-sotto">Breve descrizione del lavoro (facoltativa)</div>
+      <input
+        type="text"
+        style="width: 100%"
+        maxlength="150"
+        placeholder="Es. sostituzione della colonna di scarico"
+        [(ngModel)]="dati.descrizioneLavoro"
+        name="descrizione"
+      />
+      <div class="q-hint">Massimo 150 caratteri. Integra la categoria, non la sostituisce.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 3</div>
+      <div class="q-title">Quando hai utilizzato il professionista?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of periodi" [class.selected]="dati.periodoUtilizzo === o.valore">
+          <input type="radio" name="periodo" [value]="o.valore" [(ngModel)]="dati.periodoUtilizzo" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block" *ngIf="!segnalazione">
+      <div class="q-numero">Domanda 4 · facoltativa</div>
+      <div class="q-title">Qual è stata la fascia indicativa dell'importo del lavoro?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of fasceImporto" [class.selected]="dati.fasciaImporto === o.valore">
+          <input type="radio" name="importo" [value]="o.valore" [(ngModel)]="dati.fasciaImporto" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- B5 - B9 -->
+  <ng-container *ngIf="passo === 'valutazione'">
+    <div class="q-hint" style="margin-bottom: 14px">
+      Le risposte «non applicabile» sono escluse dal calcolo, senza penalizzazioni.
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 5</div>
+      <div class="q-title">Il professionista si è presentato nei tempi concordati?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of puntualita" [class.selected]="dati.puntualita === o.valore">
+          <input type="radio" name="puntualita" [value]="o.valore" [(ngModel)]="dati.puntualita" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 6</div>
+      <div class="q-title">Il prezzo finale ha rispettato quanto preventivato o concordato?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of prezzi" [class.selected]="dati.rispettoPrezzo === o.valore">
+          <input type="radio" name="prezzo" [value]="o.valore" [(ngModel)]="dati.rispettoPrezzo" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 7</div>
+      <div class="q-title">Il lavoro è stato completato correttamente?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of completamenti" [class.selected]="dati.completamento === o.valore">
+          <input type="radio" name="completamento" [value]="o.valore" [(ngModel)]="dati.completamento" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 8</div>
+      <div class="q-title">Come valuti la qualità del lavoro?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of giudizi" [class.selected]="dati.qualita === o.valore">
+          <input type="radio" name="qualita" [value]="o.valore" [(ngModel)]="dati.qualita" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 9</div>
+      <div class="q-title">Come valuti correttezza e professionalità?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of giudizi" [class.selected]="dati.correttezza === o.valore">
+          <input type="radio" name="correttezza" [value]="o.valore" [(ngModel)]="dati.correttezza" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- C10 - C12 -->
+  <ng-container *ngIf="passo === 'determinanti'">
+    <div class="q-block">
+      <div class="q-numero">Domanda 10</div>
+      <div class="q-title">
+        Se avessi nuovamente bisogno dello stesso servizio, richiameresti questo professionista?
+      </div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of intenzioni" [class.selected]="dati.richiamerebbe === o.valore">
+          <input type="radio" name="richiamerebbe" [value]="o.valore" [(ngModel)]="dati.richiamerebbe" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 11</div>
+      <div class="q-title">Lo consiglieresti personalmente a un amico o familiare?</div>
+      <div class="q-hint">
+        È il principale indicatore del sistema, perché implica una responsabilità personale maggiore
+        rispetto all'assegnazione di un voto generico.
+      </div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of intenzioni" [class.selected]="dati.consiglierebbe === o.valore">
+          <input type="radio" name="consiglierebbe" [value]="o.valore" [(ngModel)]="dati.consiglierebbe" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 12</div>
+      <div class="q-title">Dopo l'intervento si sono verificati problemi riconducibili al lavoro?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of problemi" [class.selected]="dati.problemiSuccessivi === o.valore">
+          <input type="radio" name="problemi" [value]="o.valore" [(ngModel)]="dati.problemiSuccessivi" />
+          {{ o.etichetta }}
+        </label>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- D13, D14 -->
+  <ng-container *ngIf="passo === 'qualitativa'">
+    <div class="q-block">
+      <div class="q-numero">Domanda 13 · massimo 2 risposte</div>
+      <div class="q-title">Quali sono i principali motivi per cui lo consiglieresti?</div>
+      <div class="opt-list">
+        <label
+          class="opt"
+          *ngFor="let o of opzioniMotivi()"
+          [class.selected]="motivoSelezionato(o.valore)"
+          [class.opt-disabilitata]="motivoDisabilitato(o.valore)"
+        >
+          <input
+            type="checkbox"
+            [checked]="motivoSelezionato(o.valore)"
+            [disabled]="motivoDisabilitato(o.valore)"
+            (change)="selezionaMotivo(o.valore)"
+          />
+          {{ o.etichetta }}
+        </label>
+      </div>
+      <div class="q-hint">Selezionati {{ dati.motivi.length }} di 2.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-numero">Domanda 14 · facoltativa</div>
+      <div class="q-title">Vuoi aggiungere un'informazione utile agli altri utenti?</div>
+      <textarea
+        maxlength="300"
+        name="commento"
+        placeholder="Testo libero, massimo 300 caratteri."
+        [(ngModel)]="dati.commento"
+      ></textarea>
+      <div class="q-hint">
+        {{ caratteriCommento }}/300 · il testo è sottoposto a moderazione e non deve contenere dati
+        personali non necessari.
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- E15 -->
+  <ng-container *ngIf="passo === 'verifica'">
+    <div class="q-block">
+      <div class="q-numero">Domanda 15</div>
+      <div class="q-title">Puoi confermare l'effettivo utilizzo del professionista?</div>
+      <div class="opt-list">
+        <label class="opt" *ngFor="let o of metodiVerifica" [class.selected]="dati.metodoVerifica === o.valore">
+          <input type="radio" name="verifica" [value]="o.valore" [(ngModel)]="dati.metodoVerifica" />
+          {{ o.etichetta }} <span class="pill pill-neutral">{{ o.livello }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="q-block" *ngIf="dati.metodoVerifica === 'documento'">
+      <div class="q-title">Carica preventivo, fattura, ricevuta o altra prova</div>
+      <input
+        class="file-input"
+        type="file"
+        accept="application/pdf,image/jpeg,image/png,image/webp"
+        (change)="selezionaDocumento($event)"
+      />
+      <div class="q-hint">
+        PDF, JPEG, PNG o WebP fino a 5 MB. I documenti caricati non sono pubblicati: vengono
+        conservati solo per il tempo necessario alla verifica.
+      </div>
+    </div>
+
+    <div class="tabella-verifica">
+      <div class="riga-verifica" *ngFor="let l of livelli">
+        <span class="pill pill-neutral">{{ l.codice }}</span>
+        <span><b>{{ l.nome }}</b> — {{ l.definizione }}</span>
+        <span class="riga-effetto">{{ l.effetto }}</span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- conferma -->
+  <ng-container *ngIf="passo === 'fine'">
+    <div class="gate">
+      <h2 style="margin-bottom: 10px">
+        {{ segnalazione ? 'Segnalazione registrata' : 'Grazie per la referenza' }}
+      </h2>
+      <p style="color: var(--ink-soft)" *ngIf="segnalazione">
+        È registrata come V0: non genera reputazione, perché non risulta un utilizzo personale
+        diretto.
+      </p>
+      <p style="color: var(--ink-soft)" *ngIf="!segnalazione">
+        Il Trust Score di {{ pr.nome }} è stato ricalcolato.
+      </p>
+
+      <div class="stat-tile trust" style="max-width: 280px; margin: 20px auto" *ngIf="trustScoreAggiornato as ts">
+        <div class="stat-top"><span class="stat-name">Trust Score aggiornato</span></div>
+        <div class="stat-num mono">{{ ts.pubblicato ? ts.punteggio : '—' }}</div>
+        <div class="stat-desc">
+          {{ ts.pubblicato ? ts.solidita : ts.esperienzeValide + ' esperienze da ' + ts.referentiDistinti + ' persone' }}
+        </div>
+      </div>
+
+      <div class="info-note" *ngIf="esitoDocumento">{{ esitoDocumento }}</div>
+
+      <button class="btn btn-primary" type="button" (click)="vaiAllaScheda()">Vedi la scheda aggiornata</button>
+      <button class="btn btn-ghost" type="button" routerLink="/ricerca">Torna alla ricerca</button>
+    </div>
+  </ng-container>
+
+  <div class="error-note" *ngIf="errore">{{ errore }}</div>
+
+  <div class="wizard-nav" *ngIf="passo !== 'fine'">
+    <button class="btn" type="button" (click)="indietro()" [disabled]="indice === 0">Indietro</button>
+    <button class="btn btn-primary" type="button" (click)="avanti()" [disabled]="invio">
+      {{ etichettaAvanti() }}
+    </button>
+  </div>
+</div>
