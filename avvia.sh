@@ -23,6 +23,43 @@ for argomento in "$@"; do
     esac
 done
 
+docker_attivo() {
+    docker info --format '{{.ServerVersion}}' > /dev/null 2>&1
+}
+
+avvia_docker() {
+    echo "==> Docker non e' in esecuzione: lo avvio"
+
+    if docker desktop start > /dev/null 2>&1; then
+        :
+    elif command -v open > /dev/null; then
+        open -a Docker            # macOS
+    elif command -v systemctl > /dev/null; then
+        sudo systemctl start docker || true
+    elif command -v "/c/Program Files/Docker/Docker/Docker Desktop.exe" > /dev/null; then
+        "/c/Program Files/Docker/Docker/Docker Desktop.exe" &
+    else
+        echo "Docker non trovato: avvialo a mano e rilancia lo script." >&2
+        exit 1
+    fi
+
+    echo "    attendo che il motore risponda (puo' richiedere un minuto)"
+    for _ in $(seq 1 60); do
+        if docker_attivo; then
+            echo "    Docker pronto"
+            return 0
+        fi
+        sleep 3
+    done
+
+    echo "Docker non e' diventato disponibile entro 3 minuti." >&2
+    exit 1
+}
+
+if ! docker_attivo; then
+    avvia_docker
+fi
+
 echo "==> Avvio dei container (db, api, frontend)"
 if [ "$REBUILD" -eq 1 ]; then
     docker compose up -d --build

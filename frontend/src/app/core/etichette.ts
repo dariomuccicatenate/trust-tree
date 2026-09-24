@@ -142,3 +142,8 @@ export function etichetta(valore: string | null | undefined): string {
   }
   return TUTTE[valore] ?? valore;
 }
+
+/** Numero di cellulare italiano: stessa regola dell'API. */
+export const REGEX_CELLULARE = /^(?:(?:\+|00)39[\s.-]?)?3\d{2}[\s.-]?\d{3}[\s.-]?\d{3,4}$/;
+
+export const ESEMPIO_CELLULARE = '+39 333 1234567';

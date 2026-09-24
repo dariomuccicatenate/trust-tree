@@ -125,3 +125,9 @@ export const FASCE_IMPORTO = [
 export type FasciaImporto = (typeof FASCE_IMPORTO)[number];
 
 export const MAX_COMMENTO = 300;
+
+/**
+ * Numero di cellulare italiano: prefisso internazionale facoltativo (+39 / 0039),
+ * poi 3xx seguito da 6 o 7 cifre, con spazi, punti o trattini come separatori.
+ */
+export const REGEX_CELLULARE = /^(?:(?:\+|00)39[\s.-]?)?3\d{2}[\s.-]?\d{3}[\s.-]?\d{3,4}$/;

@@ -39,9 +39,9 @@ INSERT INTO utente (id, email, nome, cognome, condominio, quartiere, comune, pas
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO professionista (id, nome, categoria, telefono, quartiere, comune) VALUES
-    ('5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b', 'Mario Rossi',  'idraulico',    '+390600000001', 'EUR',       'Roma'),
-    ('9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d', 'Luca Bianchi', 'elettricista', '+390600000002', 'Ostiense',  'Roma'),
-    ('6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f', 'Teknoass',     'idraulico',    '+390600000003', 'Portuense', 'Roma')
+    ('5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b', 'Mario Rossi',  'idraulico',    '+39 333 1120045', 'EUR',       'Roma'),
+    ('9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d', 'Luca Bianchi', 'elettricista', '+39 347 8890123', 'Ostiense',  'Roma'),
+    ('6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f', 'Teknoass',     'idraulico',    '+39 366 5540912', 'Portuense', 'Roma')
 ON CONFLICT (id) DO NOTHING;
 
 -- Mario Rossi: reputazione pubblicata, due referenze nel Condominio Girasole.

@@ -18,6 +18,61 @@ Set-Location -Path $PSScriptRoot
 
 $indirizzo = 'http://localhost:8080'
 
+function Test-DockerAttivo {
+    # I comandi nativi che scrivono su stderr non devono interrompere lo script.
+    $precedente = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+        return ($LASTEXITCODE -eq 0)
+    } catch {
+        return $false
+    } finally {
+        $ErrorActionPreference = $precedente
+    }
+}
+
+function Start-Docker {
+    Write-Host '==> Docker non e'' in esecuzione: lo avvio' -ForegroundColor Cyan
+
+    # Docker Desktop recente espone il comando; altrimenti si apre l'eseguibile.
+    $precedente = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    docker desktop start 2>$null | Out-Null
+    $avviato = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $precedente
+
+    if (-not $avviato) {
+        $percorsi = @(
+            (Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'),
+            (Join-Path ${env:ProgramFiles(x86)} 'Docker\Docker\Docker Desktop.exe'),
+            (Join-Path $env:LOCALAPPDATA 'Docker\Docker Desktop.exe')
+        )
+        $eseguibile = $percorsi | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+
+        if (-not $eseguibile) {
+            throw 'Docker non trovato. Installa Docker Desktop oppure avvialo a mano, poi rilancia lo script.'
+        }
+        Start-Process -FilePath $eseguibile | Out-Null
+    }
+
+    Write-Host '    attendo che il motore risponda (puo'' richiedere un minuto)'
+    $scadenzaDocker = (Get-Date).AddMinutes(3)
+    while ((Get-Date) -lt $scadenzaDocker) {
+        if (Test-DockerAttivo) {
+            Write-Host '    Docker pronto' -ForegroundColor Green
+            return
+        }
+        Start-Sleep -Seconds 3
+    }
+
+    throw 'Docker non e'' diventato disponibile entro 3 minuti: controlla Docker Desktop.'
+}
+
+if (-not (Test-DockerAttivo)) {
+    Start-Docker
+}
+
 Write-Host '==> Avvio dei container (db, api, frontend)' -ForegroundColor Cyan
 if ($Rebuild) {
     docker compose up -d --build

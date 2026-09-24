@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
-import { CATEGORIE_SERVIZIO, VERIFICA_ETICHETTE } from '../../core/etichette';
+import { CATEGORIE_SERVIZIO, ESEMPIO_CELLULARE, REGEX_CELLULARE, VERIFICA_ETICHETTE } from '../../core/etichette';
 import { CodaVerifiche, NuovoProfessionista, Professionista, Recensione, StatoDocumento } from '../../core/modelli';
 
 @Component({
@@ -93,6 +93,12 @@ export class AdminComponent implements OnInit {
   creaProfessionista(): void {
     if (!this.nuovo.nome.trim() || !this.nuovo.categoria.trim()) {
       this.errore = 'Nome e categoria sono obbligatori.';
+      return;
+    }
+
+    const contatto = this.nuovo.telefono?.trim();
+    if (contatto && !REGEX_CELLULARE.test(contatto)) {
+      this.errore = `Il contatto deve essere un numero di cellulare valido, es. ${ESEMPIO_CELLULARE}.`;
       return;
     }
 

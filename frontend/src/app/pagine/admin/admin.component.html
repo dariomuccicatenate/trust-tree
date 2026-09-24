@@ -108,15 +108,17 @@
             <option value="" disabled>Seleziona la categoria</option>
             <option *ngFor="let c of categorie" [value]="c.valore">{{ c.etichetta }}</option>
           </select>
-          <div class="field-hint">Tassonomia controllata, la stessa del questionario.</div>
         </div>
         <div class="field">
           <label for="telefono">Contatto (cellulare)</label>
-          <input id="telefono" name="telefono" type="text" inputmode="tel" placeholder="+39 333 1234567" [(ngModel)]="nuovo.telefono" />
-          <div class="field-hint">
-            Mostrato nella scheda del professionista. Solo l'amministratore può inserirlo o
-            modificarlo.
-          </div>
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            inputmode="tel"
+            placeholder="+39 333 1234567"
+            [(ngModel)]="nuovo.telefono"
+          />
         </div>
         <div class="field">
           <label for="quartiere">Quartiere</label>

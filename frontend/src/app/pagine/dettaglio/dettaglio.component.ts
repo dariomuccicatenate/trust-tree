@@ -6,7 +6,7 @@ import { forkJoin, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { VERIFICA_ETICHETTE, etichetta } from '../../core/etichette';
+import { ESEMPIO_CELLULARE, REGEX_CELLULARE, VERIFICA_ETICHETTE, etichetta } from '../../core/etichette';
 import {
   ComponenteTR,
   ComponenteTS,
@@ -119,6 +119,12 @@ export class DettaglioComponent implements OnInit {
 
   salvaContatto(): void {
     if (!this.professionista) return;
+
+    const contatto = this.contatto.trim();
+    if (contatto && !REGEX_CELLULARE.test(contatto)) {
+      this.esitoContatto = `Numero di cellulare non valido, es. ${ESEMPIO_CELLULARE}.`;
+      return;
+    }
 
     this.salvataggioContatto = true;
     this.esitoContatto = '';

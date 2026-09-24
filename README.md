@@ -11,8 +11,9 @@ frontend/  applicazione Angular (ricerca, scheda professionista, questionario)
 
 ## Avvio da terminale
 
-Serve solo Docker in esecuzione. Un comando avvia i tre container, aspetta che l'API sia pronta,
-carica i dati di esempio se il database e' vuoto e apre il frontend nel browser.
+Un comando fa tutto: **se Docker non è in esecuzione lo avvia** e ne attende il motore, poi tira su
+i tre container, aspetta che l'API sia pronta, carica i dati di esempio se il database è vuoto e
+apre il frontend nel browser.
 
 **Windows (PowerShell)**
 

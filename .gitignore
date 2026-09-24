@@ -1,0 +1,15 @@
+# Documentazione e materiale di riferimento: resta in locale, fuori dal repository.
+docs/
+
+# Dipendenze e build (api/ e frontend/ hanno gia' i propri .gitignore)
+node_modules/
+dist/
+
+# Variabili d'ambiente e documenti caricati
+.env
+.env.local
+api/uploads/
+
+# File di sistema
+Thumbs.db
+.DS_Store

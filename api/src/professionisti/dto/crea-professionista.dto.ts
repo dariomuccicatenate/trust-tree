@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { REGEX_CELLULARE } from '../../common/questionario';
 
 export class CreaProfessionistaDto {
   @ApiProperty({ example: 'Mario Rossi' })
@@ -14,10 +15,15 @@ export class CreaProfessionistaDto {
   @MaxLength(80)
   categoria: string;
 
-  @ApiPropertyOptional({ example: '+390600000001' })
+  @ApiPropertyOptional({
+    example: '+39 333 1234567',
+    description: 'Numero di cellulare italiano, con o senza prefisso internazionale',
+  })
   @IsOptional()
   @IsString()
-  @Matches(/^\+?[0-9 ]{6,20}$/, { message: 'telefono non valido' })
+  @Matches(REGEX_CELLULARE, {
+    message: 'Il contatto deve essere un numero di cellulare valido, es. +39 333 1234567',
+  })
   telefono?: string;
 
   @ApiPropertyOptional()
