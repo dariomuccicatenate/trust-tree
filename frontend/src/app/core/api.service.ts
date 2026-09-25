@@ -2,16 +2,23 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  AggiornaScheda,
+  CodaContestazioni,
   CodaVerifiche,
+  CruscottoProfessionista,
   Elenco,
   EsitoRicerca,
+  NuovaContestazione,
   NuovaRecensione,
   NuovoProfessionista,
+  ReferenzaRicevuta,
   Registrazione,
+  RegistrazioneProfessionista,
   Professionista,
   Recensione,
   Riepilogo,
   RispostaLogin,
+  StatoContestazione,
   StatoDocumento,
   TrustRelevance,
   TrustScore,
@@ -32,6 +39,11 @@ export class ApiService {
 
   registrazione(dati: Registrazione): Observable<RispostaLogin> {
     return this.http.post<RispostaLogin>(`${this.base}/auth/registrazione`, dati);
+  }
+
+  /** Crea l'account di tipo professionista e, insieme, la scheda collegata. */
+  registrazioneProfessionista(dati: RegistrazioneProfessionista): Observable<RispostaLogin> {
+    return this.http.post<RispostaLogin>(`${this.base}/auth/registrazione-professionista`, dati);
   }
 
   me(): Observable<Utente> {
@@ -134,6 +146,48 @@ export class ApiService {
 
   rifiutaDocumento(recensioneId: string, note?: string): Observable<Recensione> {
     return this.http.post<Recensione>(`${this.base}/admin/verifiche/${recensioneId}/rifiuta`, {
+      note,
+    });
+  }
+
+  // --- area del professionista ---
+
+  /** Scheda, punteggio e referenze ricevute dal professionista autenticato. */
+  cruscottoProfessionista(): Observable<CruscottoProfessionista> {
+    return this.http.get<CruscottoProfessionista>(`${this.base}/area-professionista/cruscotto`);
+  }
+
+  /** Dati della propria scheda pubblica, senza ricalcolare i punteggi. */
+  schedaProfessionista(): Observable<Professionista> {
+    return this.http.get<Professionista>(`${this.base}/area-professionista/scheda`);
+  }
+
+  /** Contatto e zona: nome e categoria restano all'amministratore. */
+  aggiornaSchedaProfessionista(dati: AggiornaScheda): Observable<Professionista> {
+    return this.http.patch<Professionista>(`${this.base}/area-professionista/scheda`, dati);
+  }
+
+  /** Chiede all'amministratore la contestazione di una referenza ricevuta. */
+  contestaReferenza(dati: NuovaContestazione): Observable<ReferenzaRicevuta> {
+    return this.http.post<ReferenzaRicevuta>(`${this.base}/area-professionista/contestazioni`, dati);
+  }
+
+  // --- contestazioni, lato amministratore ---
+
+  contestazioni(stato: StatoContestazione = 'aperta'): Observable<CodaContestazioni> {
+    return this.http.get<CodaContestazioni>(`${this.base}/admin/contestazioni`, {
+      params: new HttpParams().set('stato', stato),
+    });
+  }
+
+  accogliContestazione(recensioneId: string, note?: string): Observable<Recensione> {
+    return this.http.post<Recensione>(`${this.base}/admin/contestazioni/${recensioneId}/accogli`, {
+      note,
+    });
+  }
+
+  respingiContestazione(recensioneId: string, note?: string): Observable<Recensione> {
+    return this.http.post<Recensione>(`${this.base}/admin/contestazioni/${recensioneId}/respingi`, {
       note,
     });
   }

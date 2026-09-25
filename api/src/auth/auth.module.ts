@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Professionista } from '../professionisti/professionista.entity';
 import { Utente } from '../utenti/utente.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -10,7 +11,7 @@ import { RuoliGuard } from './ruoli.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Utente]),
+    TypeOrmModule.forFeature([Utente, Professionista]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

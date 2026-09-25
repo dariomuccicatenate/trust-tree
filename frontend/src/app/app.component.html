@@ -2,11 +2,36 @@
   <div class="brand-row" [class.brand-centrata]="suLogin">
     <div class="brand">
       <span class="mark">🤝</span>
-      <h1><a routerLink="/ricerca" style="text-decoration: none">Trust Tree</a></h1>
+      <h1><a [routerLink]="auth.paginaIniziale" style="text-decoration: none">Trust Tree</a></h1>
       <span class="tag" *ngIf="!suLogin">referenze verificate di prestazioni realmente eseguite</span>
     </div>
     <div class="topbar-actions" *ngIf="!suLogin">
-      <a class="btn btn-ghost" routerLink="/ricerca" routerLinkActive="btn" *ngIf="utente">Ricerca</a>
+      <!-- la ricerca non riguarda il professionista: la sua pagina sono le referenze ricevute -->
+      <a
+        class="btn btn-ghost"
+        routerLink="/ricerca"
+        routerLinkActive="btn"
+        *ngIf="utente && !auth.professionista"
+      >
+        Ricerca
+      </a>
+      <a
+        class="btn btn-ghost"
+        routerLink="/area-professionista"
+        routerLinkActive="btn"
+        [routerLinkActiveOptions]="{ exact: true }"
+        *ngIf="auth.professionista"
+      >
+        Le mie referenze
+      </a>
+      <a
+        class="btn btn-ghost"
+        routerLink="/area-professionista/profilo"
+        routerLinkActive="btn"
+        *ngIf="auth.professionista"
+      >
+        I miei dati
+      </a>
       <a class="btn btn-ghost" routerLink="/admin" routerLinkActive="btn" *ngIf="auth.admin">
         Amministrazione
       </a>
@@ -19,6 +44,7 @@
     <label>Accesso</label>
     <span>{{ utente.nome }} {{ utente.cognome }}</span>
     <span class="pill pill-good" *ngIf="utente.ruolo === 'admin'">amministratore</span>
+    <span class="pill pill-neutral" *ngIf="utente.ruolo === 'professionista'">professionista</span>
     <span class="persona-meta" *ngIf="zona(utente)">{{ zona(utente) }}</span>
   </div>
 </div>

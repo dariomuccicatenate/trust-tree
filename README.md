@@ -35,9 +35,11 @@ Credenziali di sviluppo (caricate dal seed):
 
 | Utenza | Password | Ruolo |
 |---|---|---|
-| `admin@trusttree.local` | `admin1234` | amministratore: verifica i documenti e inserisce i professionisti |
+| `admin@trusttree.local` | `admin1234` | amministratore: verifica i documenti, decide le contestazioni, inserisce i professionisti |
 | `giulia.neri@example.com` | `trust1234` | residente del Condominio Girasole |
 | `paolo.rizzo@example.com` | `trust1234` | utente senza condominio |
+| `mario.rossi@example.com` | `trust1234` | professionista (idraulico), con referenze e una contestazione aperta |
+| `luca.bianchi@example.com` | `trust1234` | professionista (elettricista), reputazione in costruzione |
 
 Se PowerShell blocca lo script per la execution policy:
 `powershell -ExecutionPolicy Bypass -File .\avvia.ps1`.
@@ -72,7 +74,7 @@ docker compose exec -T db psql -U trust -d trust_tree < db/seed/001_dati_esempio
 
 | Servizio | Immagine | Indirizzo | Note |
 |---|---|---|---|
-| `db` | postgres:16-alpine | `postgresql://trust:trust@localhost:5432/trust_tree` | migrazioni applicate alla prima creazione del volume |
+| `db` | postgres:16-alpine | `postgresql://trust:trust@localhost:5432/trust_tree` | migrazioni applicate alla creazione del volume; quelle nuove le applica `avvia` |
 | `api` | build `./api` | http://localhost:3000/api (OpenAPI su `/api/docs`) | si collega a `db` per nome di servizio |
 | `frontend` | build `./frontend` (nginx) | http://localhost:8080 | inoltra `/api/` a `http://api:3000` |
 
@@ -109,12 +111,35 @@ Le formule dei documenti 1.0 sono implementate nell'API (`api/src/punteggi/`):
 Pesi, coefficienti e soglie stanno tutti in `api/src/punteggi/parametri.ts`: la versione 1.0 è
 sperimentale e va ricalibrata dopo il primo campione significativo.
 
-## Accesso e amministrazione
+## Accesso, ruoli e amministrazione
 
-Login con email e password (JWT). L'amministratore ha una dashboard su `/admin` per:
+Login con email e password (JWT). **Il tipo di utenza si stabilisce alla registrazione** e non è
+modificabile dall'interessato: la pagina di accesso ha la registrazione del residente e, sotto, il
+collegamento alla registrazione del professionista.
 
-- **verificare i documenti caricati** a supporto delle referenze: un documento approvato porta la
+| Ruolo | Come nasce | Dove entra |
+|---|---|---|
+| `utente` | registrazione pubblica | `/ricerca`: cerca professionisti e lascia referenze |
+| `professionista` | registrazione pubblica come professionista (crea account **e** scheda) | `/area-professionista`: solo le referenze ricevute, niente ricerca |
+| `admin` | solo dal database o da un altro amministratore | `/admin` |
+
+L'amministratore su `/admin`:
+
+- **verifica i documenti caricati** a supporto delle referenze: un documento approvato porta la
   referenza da V1 dichiarata a V2 verificata, un rifiuto la riporta a V1;
-- **aggiungere professionisti**, che nascono con reputazione in costruzione.
+- **decide le contestazioni** aperte dai professionisti: accolta → la referenza passa a `esclusa` e
+  non concorre più ai punteggi (resta nello storico, non viene cancellata); respinta → resta
+  pubblicata. La nota della decisione è visibile al professionista;
+- **aggiunge professionisti**, che nascono con reputazione in costruzione.
+
+Il professionista su `/area-professionista` vede la propria scheda, il Trust Score e tutte le
+referenze ricevute, e può chiederne la contestazione. Su `/area-professionista/profilo` aggiorna da
+solo **contatto, zona e comune**; nome della scheda e categoria restano all'amministratore, perché
+sono i dati su cui si è formata la reputazione già raccolta. Due regole di progetto:
+
+- **le referenze gli arrivano anonime**: l'API non espone l'autore, non è un campo nascosto lato
+  interfaccia;
+- **non può lasciare referenze sulla propria scheda** e non può modificare né cancellare quelle
+  ricevute: può solo aprire una richiesta motivata.
 
 I documenti non sono pubblici: restano sul volume `documenti` e sono scaricabili solo dall'admin.

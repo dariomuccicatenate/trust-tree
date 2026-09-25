@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistrazioneDto } from './dto/registrazione.dto';
+import { RegistrazioneProfessionistaDto } from './dto/registrazione-professionista.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UtenteAutenticato, UtenteCorrente } from './utente-corrente.decorator';
 
@@ -25,6 +26,17 @@ export class AuthController {
   })
   registra(@Body() dto: RegistrazioneDto) {
     return this.service.registra(dto);
+  }
+
+  @Post('registrazione-professionista')
+  @ApiOperation({
+    summary: 'Crea un account di tipo professionista e la scheda collegata',
+    description:
+      'Il tipo di utenza si stabilisce qui: l’account nasce con ruolo "professionista" e ' +
+      'governa una sola scheda, che parte senza referenze e quindi con reputazione in costruzione.',
+  })
+  registraProfessionista(@Body() dto: RegistrazioneProfessionistaDto) {
+    return this.service.registraProfessionista(dto);
   }
 
   @Get('me')

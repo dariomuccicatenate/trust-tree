@@ -1,6 +1,7 @@
 <h2>Amministrazione</h2>
 <p class="result-count">
-  Verifica dei documenti caricati a supporto delle referenze e inserimento dei professionisti.
+  Verifica dei documenti a supporto delle referenze, decisione delle contestazioni e inserimento
+  dei professionisti.
 </p>
 
 <div class="error-note" *ngIf="errore">{{ errore }}</div>
@@ -78,6 +79,109 @@
             </button>
             <button class="btn" type="button" [disabled]="inLavorazione === r.id" (click)="rifiuta(r)">
               Rifiuta
+            </button>
+          </ng-container>
+
+          <a class="btn btn-ghost" [routerLink]="['/professionisti', r.professionistaId]">
+            Vedi scheda
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- contestazioni aperte dai professionisti sulle referenze ricevute -->
+    <div class="panel">
+      <h3>Contestazioni dei professionisti</h3>
+      <p class="verifica-meta" style="margin-bottom: 12px">
+        Accogliere la richiesta esclude la referenza dal calcolo dei punteggi: resta nello storico,
+        non viene cancellata. Respingerla la lascia pubblicata. In entrambi i casi la nota che
+        scrivi è visibile al professionista.
+      </p>
+
+      <div class="tabs">
+        <button
+          class="tab"
+          type="button"
+          *ngFor="let s of statiContestazione"
+          [class.attiva]="statoContestazione === s.valore"
+          (click)="cambiaStatoContestazione(s.valore)"
+        >
+          {{ s.etichetta }}
+          <span *ngIf="contestazioni"> ({{ contestazioni.conteggi[s.valore] }})</span>
+        </button>
+      </div>
+
+      <div class="building-note" *ngIf="caricamentoContestazioni">Caricamento in corso…</div>
+
+      <div
+        class="building-note"
+        *ngIf="!caricamentoContestazioni && contestazioni && !contestazioni.risultati.length"
+      >
+        Nessuna richiesta in questo stato.
+      </div>
+
+      <div class="verifica" *ngFor="let r of contestazioni?.risultati">
+        <div class="verifica-head">
+          <div>
+            <b>{{ r.professionista?.nome }}</b>
+            <span class="pill pill-neutral" style="margin-left: 8px">
+              {{ etichettaCategoria(r.categoriaServizio) }}
+            </span>
+          </div>
+          <span class="pill" [ngClass]="badgeContestazione(r.contestazioneStato).pill">
+            {{ badgeContestazione(r.contestazioneStato).testo }}
+          </span>
+        </div>
+
+        <div class="verifica-meta">
+          Motivo: <b>{{ motivoContestazione(r.contestazioneMotivo) }}</b>
+          <span *ngIf="r.contestazioneApertaIl">
+            · richiesta del {{ r.contestazioneApertaIl | date: 'dd/MM/yyyy HH:mm' }}</span
+          >
+        </div>
+        <div class="verifica-meta" *ngIf="r.contestazioneDettaglio">
+          «{{ r.contestazioneDettaglio }}»
+        </div>
+
+        <div class="verifica-meta">
+          Referenza di {{ r.utente?.nome }} {{ r.utente?.cognome }}
+          <span *ngIf="r.utente?.condominio"> · {{ r.utente?.condominio }}</span>
+          · {{ r.creatoIl | date: 'dd/MM/yyyy' }}
+          · {{ badge(r.livelloVerifica).testo }}
+        </div>
+        <div class="verifica-meta" *ngIf="r.descrizioneLavoro">
+          Lavoro dichiarato: {{ r.descrizioneLavoro }}
+        </div>
+        <div class="review-quote" *ngIf="r.commento" style="margin: 8px 0">«{{ r.commento }}»</div>
+
+        <div class="verifica-meta" *ngIf="r.contestazioneDecisaIl">
+          Decisa il {{ r.contestazioneDecisaIl | date: 'dd/MM/yyyy HH:mm' }}
+          <span *ngIf="r.contestazioneNoteEsito"> — «{{ r.contestazioneNoteEsito }}»</span>
+        </div>
+
+        <div class="verifica-azioni">
+          <ng-container *ngIf="r.contestazioneStato === 'aperta'">
+            <input
+              type="text"
+              placeholder="Motivazione della decisione"
+              [(ngModel)]="noteContestazione[r.id]"
+              style="flex: 1 1 180px"
+            />
+            <button
+              class="btn btn-primary"
+              type="button"
+              [disabled]="inLavorazioneContestazione === r.id"
+              (click)="accogli(r)"
+            >
+              Accogli → escludi
+            </button>
+            <button
+              class="btn"
+              type="button"
+              [disabled]="inLavorazioneContestazione === r.id"
+              (click)="respingi(r)"
+            >
+              Respingi
             </button>
           </ng-container>
 

@@ -67,6 +67,47 @@ else
     docker compose up -d
 fi
 
+migrazioni_pendenti() {
+    # Le migrazioni girano da sole solo alla creazione del volume: qui vengono
+    # applicate quelle nuove ai database gia' esistenti, una volta sola.
+    echo "==> Attendo il database"
+    for _ in $(seq 1 45); do
+        if docker compose exec -T db pg_isready -U trust -d trust_tree > /dev/null 2>&1; then
+            break
+        fi
+        sleep 2
+    done
+
+    docker compose exec -T db psql -q -v ON_ERROR_STOP=1 -U trust -d trust_tree > /dev/null <<'SQL'
+CREATE TABLE IF NOT EXISTS migrazione_applicata (
+    nome         text PRIMARY KEY,
+    applicata_il timestamptz NOT NULL DEFAULT now()
+);
+
+-- Database creato prima dell'introduzione del registro: se la tabella utente esiste,
+-- le migrazioni fino alla 003 sono certamente gia' state applicate.
+INSERT INTO migrazione_applicata (nome)
+SELECT m.nome
+  FROM (VALUES ('001_init.sql'), ('002_login_e_documenti.sql'), ('003_questionario_completo.sql')) AS m(nome)
+ WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'utente')
+    ON CONFLICT DO NOTHING;
+SQL
+
+    applicate=$(docker compose exec -T db psql -U trust -d trust_tree -tAc 'SELECT nome FROM migrazione_applicata' | tr -d '\r')
+
+    for percorso in db/migrations/*.sql; do
+        nome=$(basename "$percorso")
+        if ! echo "$applicate" | grep -qx "$nome"; then
+            echo "==> Applico la migrazione $nome"
+            docker compose exec -T db psql -q -v ON_ERROR_STOP=1 -U trust -d trust_tree < "$percorso" > /dev/null
+            docker compose exec -T db psql -q -U trust -d trust_tree \
+                -c "INSERT INTO migrazione_applicata (nome) VALUES ('$nome') ON CONFLICT DO NOTHING" > /dev/null
+        fi
+    done
+}
+
+migrazioni_pendenti
+
 echo "==> Attendo che l'API sia pronta"
 for _ in $(seq 1 60); do
     stato=$(docker inspect -f '{{.State.Health.Status}}' trust-tree-api 2>/dev/null || echo starting)

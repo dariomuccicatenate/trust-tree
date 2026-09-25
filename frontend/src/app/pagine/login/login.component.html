@@ -66,7 +66,7 @@
         <button
           class="tab"
           type="button"
-          [class.attiva]="scheda === 'registrazione'"
+          [class.attiva]="scheda === 'registrazione' || scheda === 'professionista'"
           (click)="cambiaScheda('registrazione')"
         >
           Registrati
@@ -175,6 +175,130 @@
         </button>
       </form>
 
+      <!-- il tipo di utenza si stabilisce alla registrazione: da qui si passa a quella del professionista -->
+      <div class="altro-profilo" *ngIf="scheda === 'registrazione'">
+        Offri un servizio e vuoi vedere le referenze che ricevi?
+        <button class="link-testuale" type="button" (click)="cambiaScheda('professionista')">
+          Registrati come professionista
+        </button>
+      </div>
+
+      <!-- registrazione del professionista -->
+      <form (ngSubmit)="registratiComeProfessionista()" *ngIf="scheda === 'professionista'">
+        <div class="field-hint centrata" style="margin-bottom: 14px">
+          Crei il tuo accesso e la tua scheda pubblica. Iscriversi non genera reputazione: il
+          punteggio nasce solo dalle referenze di chi ti ha già chiamato.
+        </div>
+
+        <div class="due-campi">
+          <div class="field">
+            <label for="pro-nome">Nome</label>
+            <input id="pro-nome" type="text" name="proNome" [(ngModel)]="nuovoPro.nome" />
+          </div>
+          <div class="field">
+            <label for="pro-cognome">Cognome</label>
+            <input id="pro-cognome" type="text" name="proCognome" [(ngModel)]="nuovoPro.cognome" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="pro-attivita">Nome dell'attività</label>
+          <input
+            id="pro-attivita"
+            type="text"
+            name="proAttivita"
+            placeholder="Idraulica Rossi"
+            [(ngModel)]="nuovoPro.nomeAttivita"
+          />
+          <div class="field-hint">Facoltativo: se non lo indichi vale nome e cognome.</div>
+        </div>
+
+        <div class="field">
+          <label for="pro-categoria">Servizio che offri</label>
+          <select id="pro-categoria" name="proCategoria" [(ngModel)]="nuovoPro.categoria">
+            <option value="" disabled>Scegli il servizio</option>
+            <option *ngFor="let c of categorie" [value]="c.valore">{{ c.etichetta }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="pro-email">Email</label>
+          <input
+            id="pro-email"
+            type="text"
+            name="proEmail"
+            autocomplete="email"
+            [(ngModel)]="nuovoPro.email"
+          />
+        </div>
+
+        <div class="due-campi">
+          <div class="field">
+            <label for="pro-password">Password</label>
+            <input
+              id="pro-password"
+              type="password"
+              name="proPassword"
+              autocomplete="new-password"
+              [(ngModel)]="nuovoPro.password"
+            />
+          </div>
+          <div class="field">
+            <label for="pro-conferma">Conferma</label>
+            <input
+              id="pro-conferma"
+              type="password"
+              name="proConferma"
+              autocomplete="new-password"
+              [(ngModel)]="nuovoPro.conferma"
+            />
+          </div>
+        </div>
+        <div class="field-hint">Almeno 8 caratteri.</div>
+
+        <div class="field">
+          <label for="pro-telefono">Cellulare</label>
+          <input
+            id="pro-telefono"
+            type="tel"
+            inputmode="tel"
+            name="proTelefono"
+            [attr.placeholder]="esempioCellulare"
+            [(ngModel)]="nuovoPro.telefono"
+          />
+          <div class="field-hint centrata">
+            Facoltativo, ma è il numero che i tuoi futuri clienti vedranno sulla scheda.
+          </div>
+        </div>
+
+        <div class="due-campi">
+          <div class="field">
+            <label for="pro-quartiere">Quartiere in cui lavori</label>
+            <input
+              id="pro-quartiere"
+              type="text"
+              name="proQuartiere"
+              [(ngModel)]="nuovoPro.quartiere"
+            />
+          </div>
+          <div class="field">
+            <label for="pro-comune">Comune</label>
+            <input id="pro-comune" type="text" name="proComune" [(ngModel)]="nuovoPro.comune" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary access-submit" type="submit" [disabled]="invio">
+          {{ invio ? 'Registrazione in corso…' : 'Crea account professionista' }}
+        </button>
+      </form>
+
+      <div class="altro-profilo" *ngIf="scheda === 'professionista'">
+        Cerchi invece un professionista per casa tua?
+        <button class="link-testuale" type="button" (click)="cambiaScheda('registrazione')">
+          Registrati come residente
+        </button>
+      </div>
+
       <ng-container *ngIf="scheda === 'accesso'">
         <div class="access-divider">Credenziali di prova</div>
         <div class="quick-accounts">
@@ -189,6 +313,10 @@
           <button class="quick-account" type="button" (click)="provaAccount('paolo.rizzo@example.com', 'trust1234')">
             <span>paolo.rizzo@example.com</span>
             <span class="meta">utente senza condominio</span>
+          </button>
+          <button class="quick-account" type="button" (click)="provaAccount('mario.rossi@example.com', 'trust1234')">
+            <span>mario.rossi@example.com</span>
+            <span class="meta">professionista, idraulico</span>
           </button>
         </div>
       </ng-container>

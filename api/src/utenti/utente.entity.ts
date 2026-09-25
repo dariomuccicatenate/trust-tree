@@ -3,7 +3,13 @@ import { Exclude } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Recensione } from '../recensioni/recensione.entity';
 
-export type Ruolo = 'utente' | 'admin';
+/**
+ * Il tipo di utenza si stabilisce alla registrazione:
+ *   utente         cerca professionisti e lascia referenze
+ *   professionista vede le referenze ricevute e puo' contestarle
+ *   admin          verifica i documenti, decide le contestazioni, censisce le schede
+ */
+export type Ruolo = 'utente' | 'admin' | 'professionista';
 
 @Entity('utente')
 export class Utente {
@@ -40,7 +46,7 @@ export class Utente {
   @Column({ name: 'password_hash', type: 'text', nullable: true, select: false })
   passwordHash?: string | null;
 
-  @ApiProperty({ enum: ['utente', 'admin'], default: 'utente' })
+  @ApiProperty({ enum: ['utente', 'admin', 'professionista'], default: 'utente' })
   @Column({ type: 'text', default: 'utente' })
   ruolo: Ruolo;
 

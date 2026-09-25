@@ -19,6 +19,8 @@ export interface Professionista {
   telefono: string | null;
   quartiere: string | null;
   comune: string | null;
+  /** Account che governa la scheda: vuoto se non e' stata rivendicata. */
+  utenteId: string | null;
   creatoIl: string;
 }
 
@@ -56,6 +58,15 @@ export interface Recensione {
   verificatoDa: string | null;
   verificatoIl: string | null;
   noteVerifica: string | null;
+
+  contestazioneStato: StatoContestazione;
+  contestazioneMotivo: MotivoContestazione | null;
+  contestazioneDettaglio: string | null;
+  contestazioneApertaIl: string | null;
+  contestazioneApertaDa: string | null;
+  contestazioneDecisaIl: string | null;
+  contestazioneDecisaDa: string | null;
+  contestazioneNoteEsito: string | null;
 
   utente?: Utente;
   professionista?: Professionista;
@@ -100,7 +111,7 @@ export interface Elenco<T> {
 
 // --- autenticazione ---
 
-export type Ruolo = 'utente' | 'admin';
+export type Ruolo = 'utente' | 'admin' | 'professionista';
 
 export interface Registrazione {
   email: string;
@@ -112,9 +123,23 @@ export interface Registrazione {
   comune?: string;
 }
 
+/** Registrazione di un professionista: crea l'account e, insieme, la sua scheda. */
+export interface RegistrazioneProfessionista {
+  email: string;
+  password: string;
+  nome: string;
+  cognome: string;
+  nomeAttivita?: string;
+  categoria: string;
+  telefono?: string;
+  quartiere?: string;
+  comune?: string;
+}
+
 export interface RispostaLogin {
   accessToken: string;
   utente: Utente;
+  professionista?: Professionista;
 }
 
 // --- punteggi calcolati dall'API ---
@@ -172,6 +197,77 @@ export interface CodaVerifiche {
 export interface NuovoProfessionista {
   nome: string;
   categoria: string;
+  telefono?: string;
+  quartiere?: string;
+  comune?: string;
+}
+
+// --- area del professionista e contestazioni ---
+
+export type StatoContestazione = 'nessuna' | 'aperta' | 'accolta' | 'respinta';
+
+export type MotivoContestazione =
+  | 'mai_incaricato'
+  | 'lavoro_non_mio'
+  | 'contenuto_offensivo'
+  | 'dati_errati'
+  | 'dati_personali'
+  | 'altro';
+
+/**
+ * Referenza come la vede il professionista: senza l'identita' di chi l'ha scritta.
+ * L'API non la espone affatto, non e' un campo nascosto nell'interfaccia.
+ */
+export interface ReferenzaRicevuta {
+  id: string;
+  categoriaServizio: string;
+  descrizioneLavoro: string | null;
+  periodoUtilizzo: string;
+  fasciaImporto: string | null;
+  puntualita: string | null;
+  rispettoPrezzo: string | null;
+  completamento: string | null;
+  qualita: string | null;
+  correttezza: string | null;
+  richiamerebbe: string | null;
+  consiglierebbe: string | null;
+  problemiSuccessivi: string | null;
+  motivi: string[];
+  commento: string | null;
+  livelloVerifica: LivelloVerifica;
+  stato: StatoRecensione;
+  creatoIl: string;
+  contestazioneStato: StatoContestazione;
+  contestazioneMotivo: MotivoContestazione | null;
+  contestazioneDettaglio: string | null;
+  contestazioneApertaIl: string | null;
+  contestazioneDecisaIl: string | null;
+  contestazioneNoteEsito: string | null;
+  concorreAiPunteggi: boolean;
+}
+
+export interface CruscottoProfessionista {
+  professionista: Professionista;
+  riepilogo: Riepilogo;
+  trustScore: TrustScore;
+  referenze: ReferenzaRicevuta[];
+  contestazioni: Record<StatoContestazione, number>;
+}
+
+export interface NuovaContestazione {
+  recensioneId: string;
+  motivo: MotivoContestazione;
+  dettaglio?: string;
+}
+
+export interface CodaContestazioni {
+  totale: number;
+  conteggi: Record<StatoContestazione, number>;
+  risultati: Recensione[];
+}
+
+/** Dati della scheda che il professionista puo' cambiare da solo. */
+export interface AggiornaScheda {
   telefono?: string;
   quartiere?: string;
   comune?: string;

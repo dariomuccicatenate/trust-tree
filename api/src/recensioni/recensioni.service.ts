@@ -128,9 +128,10 @@ export class RecensioniService {
   }
 
   private async verificaRiferimenti(utenteId: string, professionistaId: string): Promise<void> {
-    const [utente, professionista] = await Promise.all([
+    const [utente, professionista, propria] = await Promise.all([
       this.utenti.count({ where: { id: utenteId } }),
       this.professionisti.count({ where: { id: professionistaId } }),
+      this.professionisti.count({ where: { id: professionistaId, utenteId } }),
     ]);
 
     if (!utente) {
@@ -138,6 +139,10 @@ export class RecensioniService {
     }
     if (!professionista) {
       throw new NotFoundException(`Professionista ${professionistaId} non trovato`);
+    }
+    // Un account di tipo professionista non costruisce la reputazione della propria scheda.
+    if (propria) {
+      throw new ForbiddenException('Non puoi lasciare una referenza sulla tua stessa scheda');
     }
   }
 

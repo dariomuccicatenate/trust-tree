@@ -1,7 +1,8 @@
 # Frontend - Trust Tree
 
 Angular 16 (componenti standalone, rotte lazy). L'accesso avviene con email e password: il token
-JWT viaggia in un interceptor e le rotte sono protette da due guardie (`autenticato`, `admin`).
+JWT viaggia in un interceptor e le rotte sono protette da tre guardie (`autenticato`, `admin`,
+`professionista`). Il tipo di utenza si sceglie alla registrazione e determina la pagina d'ingresso.
 
 ## Avvio
 
@@ -13,17 +14,24 @@ npm start          # http://localhost:4200, proxy /api su http://localhost:3000
 Con Docker l'app è servita da nginx su http://localhost:8080 (vedi `docker-compose.yml` in radice).
 
 Credenziali di sviluppo (dal seed): `admin@trusttree.local / admin1234` per l'amministratore,
-`giulia.neri@example.com / trust1234` per un residente. La pagina di accesso le propone con un clic.
+`giulia.neri@example.com / trust1234` per un residente, `mario.rossi@example.com / trust1234` per
+un professionista. La pagina di accesso le propone con un clic.
 
 ## Schermate
 
 | Rotta | Accesso | Contenuto |
 |---|---|---|
-| `/login` | libero | due schede: **Accedi** e **Registrati** (nome, cognome, email, password e, facoltativi, condominio/quartiere/comune). Le utenze di prova entrano con un clic; dopo la registrazione l'utente e' gia' autenticato. La barra in alto mostra solo logo e nome, centrati |
-| `/ricerca` | autenticato | filtri per testo, categoria e zona; risultati divisi tra reputazione pubblicata (ordinati per `0,6 × Trust Score + 0,4 × Trust Relevance`) e reputazione in costruzione |
-| `/professionisti/:id` | autenticato | contatto del professionista, Trust Score e Trust Relevance con formula, componenti, motivazione, referenze, conteggi di verifica. Il contatto è modificabile solo dall'amministratore, direttamente dalla scheda |
-| `/professionisti/:id/referenza` | autenticato | questionario 1.0: un passo per sezione (A-E), domande numerate come nel documento, prima domanda come filtro (nessun utilizzo personale → segnalazione V0), categoria da tassonomia + descrizione facoltativa, fascia di importo facoltativa, massimo 2 motivi, commento moderato, tabella dei livelli di verifica e caricamento del documento |
-| `/admin` | solo admin | verifica dei documenti caricati e inserimento dei professionisti |
+| `/login` | libero | **Accedi** e **Registrati** (nome, cognome, email, password e, facoltativi, condominio/quartiere/comune). Sotto il modulo, il collegamento alla **registrazione come professionista** (servizio offerto, nome dell'attivita', cellulare, zona), che crea account e scheda. Le utenze di prova entrano con un clic; dopo la registrazione l'utente e' gia' autenticato. La barra in alto mostra solo logo e nome, centrati |
+| `/ricerca` | residente o admin | filtri per testo, categoria e zona; risultati divisi tra reputazione pubblicata (ordinati per `0,6 × Trust Score + 0,4 × Trust Relevance`) e reputazione in costruzione |
+| `/professionisti/:id` | residente o admin | contatto del professionista, Trust Score e Trust Relevance con formula, componenti, motivazione, referenze, conteggi di verifica. Il contatto è modificabile solo dall'amministratore, direttamente dalla scheda |
+| `/professionisti/:id/referenza` | residente o admin | questionario 1.0: un passo per sezione (A-E), domande numerate come nel documento, prima domanda come filtro (nessun utilizzo personale → segnalazione V0), categoria da tassonomia + descrizione facoltativa, fascia di importo facoltativa, massimo 2 motivi, commento moderato, tabella dei livelli di verifica e caricamento del documento |
+| `/area-professionista` | solo professionista | scheda, Trust Score, referenze ricevute **in forma anonima** e richiesta di contestazione |
+| `/area-professionista/profilo` | solo professionista | «I miei dati»: contatto, zona e comune modificabili, con anteprima della scheda; nome e categoria in sola lettura |
+| `/admin` | solo admin | verifica dei documenti, decisione delle contestazioni, inserimento dei professionisti |
+
+Un account di tipo professionista non entra nella ricerca: la guardia `guardiaRicerca` lo riporta
+alla sua area, e la voce «Ricerca» non compare nella barra. L'amministratore invece conserva
+l'accesso a ricerca e schede, gli serve per i controlli.
 
 La modale «Come funziona» mostra le due formule e spiega la differenza tra i punteggi.
 
@@ -84,7 +92,7 @@ contenuto e' generato dal client.
 
 ```
 src/app/core/        modelli, client API, sessione (auth.service), interceptor, guardie, etichette
-src/app/pagine/      login, ricerca, dettaglio, questionario, admin
+src/app/pagine/      login, ricerca, dettaglio, questionario, professionista, admin
 ```
 
 I punteggi **non** sono più calcolati nel browser: arrivano dall'API (`/api/ricerca`,

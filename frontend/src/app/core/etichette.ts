@@ -147,3 +147,27 @@ export function etichetta(valore: string | null | undefined): string {
 export const REGEX_CELLULARE = /^(?:(?:\+|00)39[\s.-]?)?3\d{2}[\s.-]?\d{3}[\s.-]?\d{3,4}$/;
 
 export const ESEMPIO_CELLULARE = '+39 333 1234567';
+
+/** Motivi con cui un professionista puo' chiedere la contestazione di una referenza. */
+export const MOTIVI_CONTESTAZIONE: Opzione[] = [
+  { valore: 'mai_incaricato', etichetta: 'Non ho mai lavorato per questa persona' },
+  { valore: 'lavoro_non_mio', etichetta: 'Il lavoro descritto non è mio' },
+  { valore: 'dati_errati', etichetta: 'I dati del lavoro non sono corretti' },
+  { valore: 'contenuto_offensivo', etichetta: 'Il commento è offensivo o diffamatorio' },
+  { valore: 'dati_personali', etichetta: 'Il commento contiene dati personali' },
+  { valore: 'altro', etichetta: 'Altro motivo' },
+];
+
+export const STATI_CONTESTAZIONE_ETICHETTE: Record<string, { testo: string; pill: string }> = {
+  nessuna: { testo: 'nessuna richiesta', pill: 'pill-neutral' },
+  aperta: { testo: 'richiesta in esame', pill: 'pill-warn' },
+  accolta: { testo: 'richiesta accolta · referenza esclusa', pill: 'pill-good' },
+  respinta: { testo: 'richiesta respinta', pill: 'pill-neutral' },
+};
+
+export function etichettaMotivoContestazione(valore: string | null | undefined): string {
+  if (!valore) {
+    return '—';
+  }
+  return MOTIVI_CONTESTAZIONE.find((m) => m.valore === valore)?.etichetta ?? valore;
+}

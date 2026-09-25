@@ -131,3 +131,25 @@ export const MAX_COMMENTO = 300;
  * poi 3xx seguito da 6 o 7 cifre, con spazi, punti o trattini come separatori.
  */
 export const REGEX_CELLULARE = /^(?:(?:\+|00)39[\s.-]?)?3\d{2}[\s.-]?\d{3}[\s.-]?\d{3,4}$/;
+
+/**
+ * Contestazione di una referenza da parte del professionista.
+ * Il professionista non modifica ne' cancella la referenza: apre una richiesta
+ * motivata, che l'amministratore accoglie (referenza esclusa dai punteggi)
+ * oppure respinge (referenza confermata).
+ */
+export const STATI_CONTESTAZIONE = ['nessuna', 'aperta', 'accolta', 'respinta'] as const;
+export type StatoContestazione = (typeof STATI_CONTESTAZIONE)[number];
+
+export const MOTIVI_CONTESTAZIONE = [
+  'mai_incaricato',
+  'lavoro_non_mio',
+  'contenuto_offensivo',
+  'dati_errati',
+  'dati_personali',
+  'altro',
+] as const;
+
+export type MotivoContestazione = (typeof MOTIVI_CONTESTAZIONE)[number];
+
+export const MAX_DETTAGLIO_CONTESTAZIONE = 500;

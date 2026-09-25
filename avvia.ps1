@@ -83,6 +83,51 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Avvio non riuscito: Docker e'' in esecuzione?'
 }
 
+function Invoke-MigrazioniPendenti {
+    # Le migrazioni girano da sole solo alla creazione del volume: qui vengono
+    # applicate quelle nuove ai database gia' esistenti, una volta sola.
+    Write-Host '==> Attendo il database' -ForegroundColor Cyan
+    $scadenzaDb = (Get-Date).AddSeconds(90)
+    while ((Get-Date) -lt $scadenzaDb) {
+        docker compose exec -T db pg_isready -U trust -d trust_tree 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { break }
+        Start-Sleep -Seconds 2
+    }
+
+    $registro = @'
+CREATE TABLE IF NOT EXISTS migrazione_applicata (
+    nome         text PRIMARY KEY,
+    applicata_il timestamptz NOT NULL DEFAULT now()
+);
+
+-- Database creato prima dell'introduzione del registro: se la tabella utente esiste,
+-- le migrazioni fino alla 003 sono certamente gia' state applicate.
+INSERT INTO migrazione_applicata (nome)
+SELECT m.nome
+  FROM (VALUES ('001_init.sql'), ('002_login_e_documenti.sql'), ('003_questionario_completo.sql')) AS m(nome)
+ WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'utente')
+    ON CONFLICT DO NOTHING;
+'@
+    $registro | docker compose exec -T db psql -q -v ON_ERROR_STOP=1 -U trust -d trust_tree | Out-Null
+
+    # psql restituisce una riga per migrazione: ogni riga e' un elemento dell'array.
+    $applicate = docker compose exec -T db psql -U trust -d trust_tree -tAc 'SELECT nome FROM migrazione_applicata'
+    $gia = @($applicate | ForEach-Object { "$_".Trim() } | Where-Object { $_ })
+
+    Get-ChildItem -Path 'db/migrations/*.sql' | Sort-Object Name | ForEach-Object {
+        if ($gia -notcontains $_.Name) {
+            Write-Host "==> Applico la migrazione $($_.Name)" -ForegroundColor Cyan
+            Get-Content -Raw $_.FullName | docker compose exec -T db psql -q -v ON_ERROR_STOP=1 -U trust -d trust_tree | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Migrazione $($_.Name) non applicata: controlla il log del database."
+            }
+            docker compose exec -T db psql -q -U trust -d trust_tree -c "INSERT INTO migrazione_applicata (nome) VALUES ('$($_.Name)') ON CONFLICT DO NOTHING" | Out-Null
+        }
+    }
+}
+
+Invoke-MigrazioniPendenti
+
 Write-Host '==> Attendo che l''API sia pronta' -ForegroundColor Cyan
 $scadenza = (Get-Date).AddSeconds(120)
 $pronta = $false

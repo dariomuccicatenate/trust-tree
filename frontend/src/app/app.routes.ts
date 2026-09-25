@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { guardiaAdmin, guardiaAutenticato } from './core/guardie';
+import { guardiaAdmin, guardiaProfessionista, guardiaRicerca } from './core/guardie';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'ricerca' },
@@ -11,22 +11,40 @@ export const routes: Routes = [
   {
     path: 'ricerca',
     title: 'Trust Tree — ricerca',
-    canActivate: [guardiaAutenticato],
+    canActivate: [guardiaRicerca],
     loadComponent: () => import('./pagine/ricerca/ricerca.component').then((m) => m.RicercaComponent),
   },
   {
     path: 'professionisti/:id',
     title: 'Trust Tree — scheda professionista',
-    canActivate: [guardiaAutenticato],
+    canActivate: [guardiaRicerca],
     loadComponent: () =>
       import('./pagine/dettaglio/dettaglio.component').then((m) => m.DettaglioComponent),
   },
   {
     path: 'professionisti/:id/referenza',
     title: 'Trust Tree — questionario di referenza',
-    canActivate: [guardiaAutenticato],
+    canActivate: [guardiaRicerca],
     loadComponent: () =>
       import('./pagine/questionario/questionario.component').then((m) => m.QuestionarioComponent),
+  },
+  {
+    path: 'area-professionista',
+    title: 'Trust Tree — le mie referenze',
+    canActivate: [guardiaProfessionista],
+    loadComponent: () =>
+      import('./pagine/professionista/professionista.component').then(
+        (m) => m.ProfessionistaComponent,
+      ),
+  },
+  {
+    path: 'area-professionista/profilo',
+    title: 'Trust Tree — i miei dati',
+    canActivate: [guardiaProfessionista],
+    loadComponent: () =>
+      import('./pagine/professionista/profilo.component').then(
+        (m) => m.ProfiloProfessionistaComponent,
+      ),
   },
   {
     path: 'admin',

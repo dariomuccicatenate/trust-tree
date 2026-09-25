@@ -3,8 +3,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
-import { CATEGORIE_SERVIZIO, ESEMPIO_CELLULARE, REGEX_CELLULARE, VERIFICA_ETICHETTE } from '../../core/etichette';
-import { CodaVerifiche, NuovoProfessionista, Professionista, Recensione, StatoDocumento } from '../../core/modelli';
+import {
+  CATEGORIE_SERVIZIO,
+  ESEMPIO_CELLULARE,
+  REGEX_CELLULARE,
+  STATI_CONTESTAZIONE_ETICHETTE,
+  VERIFICA_ETICHETTE,
+  etichettaMotivoContestazione,
+} from '../../core/etichette';
+import {
+  CodaContestazioni,
+  CodaVerifiche,
+  NuovoProfessionista,
+  Professionista,
+  Recensione,
+  StatoContestazione,
+  StatoDocumento,
+} from '../../core/modelli';
 
 @Component({
   selector: 'app-admin',
@@ -37,8 +52,23 @@ export class AdminComponent implements OnInit {
   professionistiRecenti: Professionista[] = [];
   invioProfessionista = false;
 
+  // --- contestazioni aperte dai professionisti ---
+
+  readonly statiContestazione: Array<{ valore: StatoContestazione; etichetta: string }> = [
+    { valore: 'aperta', etichetta: 'Da decidere' },
+    { valore: 'accolta', etichetta: 'Accolte' },
+    { valore: 'respinta', etichetta: 'Respinte' },
+  ];
+
+  statoContestazione: StatoContestazione = 'aperta';
+  contestazioni: CodaContestazioni | null = null;
+  caricamentoContestazioni = true;
+  noteContestazione: Record<string, string> = {};
+  inLavorazioneContestazione: string | null = null;
+
   ngOnInit(): void {
     this.caricaCoda();
+    this.caricaContestazioni();
     this.caricaProfessionisti();
   }
 
@@ -88,6 +118,53 @@ export class AdminComponent implements OnInit {
       next: () => this.dopoEsito('Documento rifiutato: la referenza torna a V1 dichiarata.'),
       error: (risposta) => this.erroreEsito(risposta),
     });
+  }
+
+  caricaContestazioni(): void {
+    this.caricamentoContestazioni = true;
+    this.api.contestazioni(this.statoContestazione).subscribe({
+      next: (coda) => {
+        this.contestazioni = coda;
+        this.caricamentoContestazioni = false;
+      },
+      error: (risposta) => {
+        this.caricamentoContestazioni = false;
+        this.errore = risposta?.error?.message ?? 'Non riesco a caricare le contestazioni.';
+      },
+    });
+  }
+
+  cambiaStatoContestazione(stato: StatoContestazione): void {
+    this.statoContestazione = stato;
+    this.conferma = '';
+    this.caricaContestazioni();
+  }
+
+  accogli(recensione: Recensione): void {
+    this.inLavorazioneContestazione = recensione.id;
+    this.api.accogliContestazione(recensione.id, this.noteContestazione[recensione.id]).subscribe({
+      next: () =>
+        this.dopoDecisione(
+          'Richiesta accolta: la referenza resta nello storico ma non concorre piu’ ai punteggi.',
+        ),
+      error: (risposta) => this.erroreDecisione(risposta),
+    });
+  }
+
+  respingi(recensione: Recensione): void {
+    this.inLavorazioneContestazione = recensione.id;
+    this.api.respingiContestazione(recensione.id, this.noteContestazione[recensione.id]).subscribe({
+      next: () => this.dopoDecisione('Richiesta respinta: la referenza resta pubblicata.'),
+      error: (risposta) => this.erroreDecisione(risposta),
+    });
+  }
+
+  motivoContestazione(valore: string | null | undefined): string {
+    return etichettaMotivoContestazione(valore);
+  }
+
+  badgeContestazione(stato: string): { testo: string; pill: string } {
+    return STATI_CONTESTAZIONE_ETICHETTE[stato] ?? { testo: stato, pill: 'pill-neutral' };
   }
 
   creaProfessionista(): void {
@@ -164,5 +241,16 @@ export class AdminComponent implements OnInit {
   private erroreEsito(risposta: any): void {
     this.inLavorazione = null;
     this.errore = risposta?.error?.message ?? 'Operazione non riuscita.';
+  }
+
+  private dopoDecisione(messaggio: string): void {
+    this.inLavorazioneContestazione = null;
+    this.conferma = messaggio;
+    this.caricaContestazioni();
+  }
+
+  private erroreDecisione(risposta: any): void {
+    this.inLavorazioneContestazione = null;
+    this.errore = risposta?.error?.message ?? 'Decisione non registrata.';
   }
 }

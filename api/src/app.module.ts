@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AreaProfessionistaModule } from './area-professionista/area-professionista.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfessionistiModule } from './professionisti/professionisti.module';
 import { PunteggiModule } from './punteggi/punteggi.module';
@@ -33,6 +34,7 @@ import { VerificheModule } from './verifiche/verifiche.module';
     PunteggiModule,
     VerificheModule,
     QuestionarioModule,
+    AreaProfessionistaModule,
   ],
 })
 export class AppModule {}

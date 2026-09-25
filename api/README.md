@@ -22,19 +22,23 @@ l'API e' costruita dal `Dockerfile` di questa cartella e raggiunge il database a
 ## Autenticazione
 
 Accesso con email e password, token JWT nell'header `Authorization: Bearer …`.
-Due ruoli: `utente` e `admin`.
+Tre ruoli: `utente`, `professionista` e `admin`. Il ruolo si stabilisce alla registrazione.
 
 | Metodo | Percorso | Descrizione |
 |---|---|---|
 | POST | `/api/auth/registrazione` | crea un account (ruolo `utente`) e restituisce subito il token |
+| POST | `/api/auth/registrazione-professionista` | crea un account (ruolo `professionista`) **e** la scheda collegata |
 | POST | `/api/auth/login` | restituisce `accessToken` e profilo |
 | GET | `/api/auth/me` | profilo dell'utente autenticato |
 
-La registrazione e' pubblica e crea sempre un utente con ruolo `utente`: il ruolo `admin` si
-assegna dal database o da un altro amministratore. Email gia' registrata: 409.
+Le due registrazioni sono pubbliche e fissano il ruolo: nessuna delle due puo' creare un `admin`,
+che si assegna dal database o da un altro amministratore. Email gia' registrata: 409; cellulare
+gia' presente su un'altra scheda: 409. La registrazione del professionista scrive account e scheda
+nella stessa transazione, quindi non lascia account orfani.
 
-Credenziali di sviluppo nel seed: `admin@trusttree.local / admin1234` (admin) e
-`giulia.neri@example.com / trust1234` (e gli altri utenti di esempio).
+Credenziali di sviluppo nel seed: `admin@trusttree.local / admin1234` (admin),
+`mario.rossi@example.com / trust1234` (professionista) e `giulia.neri@example.com / trust1234`
+(e gli altri utenti di esempio).
 
 ## Punteggi
 
@@ -67,6 +71,31 @@ Tutti i pesi, i coefficienti e le fasce stanno in `src/punteggi/parametri.ts`.
 
 I file non sono pubblici: stanno sul volume `DOCUMENTI_DIR` e la riga porta una data di
 conservazione (180 giorni dal caricamento).
+
+## Area del professionista e contestazioni
+
+| Metodo | Percorso | Descrizione |
+|---|---|---|
+| GET | `/api/area-professionista/cruscotto` | scheda, Trust Score, riepilogo e referenze ricevute — solo professionista |
+| GET | `/api/area-professionista/scheda` | dati della propria scheda, senza ricalcolare i punteggi — solo professionista |
+| PATCH | `/api/area-professionista/scheda` | aggiorna contatto, zona e comune della propria scheda — solo professionista |
+| POST | `/api/area-professionista/contestazioni` | apre una richiesta motivata su una referenza ricevuta — solo professionista |
+| GET | `/api/admin/contestazioni` | coda per stato (`aperta`, `accolta`, `respinta`) — solo admin |
+| POST | `/api/admin/contestazioni/:id/accogli` | referenza a `esclusa`: fuori dai punteggi, non cancellata — solo admin |
+| POST | `/api/admin/contestazioni/:id/respingi` | la referenza resta pubblicata — solo admin |
+
+Regole applicate dal servizio:
+
+- le referenze restituite al professionista **non contengono l'autore** (ne' `utenteId`, ne' la
+  relazione `utente`): il dato non viene proprio trasmesso;
+- si contesta solo una referenza ricevuta sulla propria scheda (403 altrimenti) e una sola volta
+  (409 se la richiesta e' gia' aperta o gia' decisa);
+- un account di tipo professionista non puo' lasciare referenze sulla propria scheda (403);
+- motivi ammessi: `mai_incaricato`, `lavoro_non_mio`, `contenuto_offensivo`, `dati_errati`,
+  `dati_personali`, `altro`;
+- la PATCH accetta solo `telefono`, `quartiere` e `comune`: `nome` e `categoria` vengono
+  rifiutati con 400 (`property nome should not exist`), perché sono i dati su cui si è formata la
+  reputazione. Telefono vuoto toglie il contatto dalla scheda; telefono già presente altrove: 409.
 
 ## Endpoint
 

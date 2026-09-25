@@ -1,0 +1,187 @@
+
+<div class="error-note" *ngIf="errore">{{ errore }}</div>
+<div class="ok-note" *ngIf="conferma">{{ conferma }}</div>
+<div class="building-note" *ngIf="caricamento">Caricamento in corso…</div>
+
+<ng-container *ngIf="cruscotto as c">
+  <div class="detail-head">
+    <div>
+      <h2 style="margin: 0">{{ c.professionista.nome }}</h2>
+      <div class="section-label" style="margin: 2px 0 6px">Le referenze che hai ricevuto</div>
+      <div class="detail-meta">
+        {{ testo(c.professionista.categoria) }}
+        <span *ngIf="zona()"> · {{ zona() }}</span>
+      </div>
+      <div class="contatto">
+        <span *ngIf="c.professionista.telefono">
+          Contatto:
+          <a class="contatto-numero" [href]="'tel:' + c.professionista.telefono">
+            {{ c.professionista.telefono }}
+          </a>
+        </span>
+        <span class="contatto-assente" *ngIf="!c.professionista.telefono">
+          Nessun contatto pubblicato
+        </span>
+      </div>
+      <div class="verifica-azioni" style="margin-top: 8px">
+        <a class="btn btn-sm" routerLink="/area-professionista/profilo">
+          Modifica contatto e zona
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-tile trust">
+      <div class="stat-name">Trust Score</div>
+      <div class="stat-num" *ngIf="c.trustScore.pubblicato">
+        {{ c.trustScore.punteggio }}<small>/100</small>
+      </div>
+      <div class="stat-num" *ngIf="!c.trustScore.pubblicato">—</div>
+      <div class="stat-desc" *ngIf="c.trustScore.pubblicato">
+        Solidità del dato: {{ c.trustScore.solidita }}
+      </div>
+      <div class="stat-desc" *ngIf="!c.trustScore.pubblicato">
+        Reputazione in costruzione: servono 5 esperienze valide da 3 persone diverse.
+      </div>
+    </div>
+
+    <div class="stat-tile">
+      <div class="stat-name">Referenze valide</div>
+      <div class="stat-num">{{ c.riepilogo.esperienzeValide }}</div>
+      <div class="stat-desc">da {{ c.riepilogo.referentiDistinti }} persone diverse</div>
+    </div>
+
+    <div class="stat-tile">
+      <div class="stat-name">Richieste di contestazione</div>
+      <div class="stat-num">{{ c.contestazioni.aperta }}</div>
+      <div class="stat-desc">
+        in esame · {{ c.contestazioni.accolta }} accolte · {{ c.contestazioni.respinta }} respinte
+      </div>
+    </div>
+  </div>
+
+  <div class="info-note">
+    <b>Come funziona questa pagina.</b> Qui trovi tutte le referenze che ti sono state lasciate,
+    dalla più recente. Non vedi chi le ha scritte: è una scelta, serve a far parlare le persone
+    liberamente. Non puoi modificarle né cancellarle, ma se una referenza non ti appartiene o è
+    impropria puoi <b>chiederne la contestazione</b>: la esamina un amministratore e, se la accoglie,
+    la referenza esce dal calcolo del punteggio.
+  </div>
+
+  <div class="panel" *ngIf="!c.referenze.length">
+    <h3>Nessuna referenza, per ora</h3>
+    <p class="verifica-meta">
+      La tua scheda è appena nata: iscriversi non genera reputazione. Il punteggio comparirà quando
+      chi ti ha già chiamato lascerà le prime referenze.
+    </p>
+  </div>
+
+  <div class="review" *ngFor="let r of c.referenze">
+    <div class="review-head">
+      <div class="review-who">
+        {{ testo(r.categoriaServizio) }}
+        <span *ngIf="r.descrizioneLavoro" class="review-lavoro"> · {{ r.descrizioneLavoro }}</span>
+      </div>
+      <div class="review-tags">
+        <span class="pill" [ngClass]="badge(r.livelloVerifica).pill">
+          {{ badge(r.livelloVerifica).testo }}
+        </span>
+        <span
+          class="pill"
+          *ngIf="r.contestazioneStato !== 'nessuna'"
+          [ngClass]="badgeContestazione(r.contestazioneStato).pill"
+        >
+          {{ badgeContestazione(r.contestazioneStato).testo }}
+        </span>
+      </div>
+    </div>
+
+    <div class="verifica-meta">
+      Ricevuta il {{ r.creatoIl | date: 'dd/MM/yyyy' }} · lavoro svolto
+      {{ testo(r.periodoUtilizzo) | lowercase }}
+      <span *ngIf="r.fasciaImporto"> · importo {{ testo(r.fasciaImporto) }}</span>
+    </div>
+
+    <div class="stats-inline" *ngIf="r.livelloVerifica !== 'V0'">
+      <div>Qualità:&nbsp;<b>{{ testo(r.qualita) }}</b></div>
+      <div>Ti richiamerebbe:&nbsp;<b>{{ testo(r.richiamerebbe) }}</b></div>
+      <div>Ti consiglierebbe:&nbsp;<b>{{ testo(r.consiglierebbe) }}</b></div>
+    </div>
+
+    <div class="review-tags" *ngIf="r.motivi.length">
+      <span class="tag" *ngFor="let m of r.motivi">{{ testo(m) }}</span>
+    </div>
+
+    <div class="review-quote" *ngIf="r.commento">«{{ r.commento }}»</div>
+
+    <div class="review-flag" *ngIf="!r.concorreAiPunteggi">
+      Questa referenza non concorre ai punteggi.
+    </div>
+
+    <!-- richiesta gia' inviata o decisa -->
+    <div class="verifica" *ngIf="r.contestazioneStato !== 'nessuna'" style="margin-top: 10px">
+      <div class="verifica-meta">
+        <b>La tua richiesta:</b> {{ motivoContestazione(r.contestazioneMotivo) }}
+        <span *ngIf="r.contestazioneApertaIl">
+          · inviata il {{ r.contestazioneApertaIl | date: 'dd/MM/yyyy' }}</span
+        >
+      </div>
+      <div class="verifica-meta" *ngIf="r.contestazioneDettaglio">
+        «{{ r.contestazioneDettaglio }}»
+      </div>
+      <div class="verifica-meta" *ngIf="r.contestazioneStato === 'aperta'">
+        In attesa della decisione dell'amministratore.
+      </div>
+      <div class="verifica-meta" *ngIf="r.contestazioneDecisaIl">
+        Decisa il {{ r.contestazioneDecisaIl | date: 'dd/MM/yyyy' }}
+        <span *ngIf="r.contestazioneNoteEsito"> — «{{ r.contestazioneNoteEsito }}»</span>
+      </div>
+    </div>
+
+    <!-- modulo di contestazione -->
+    <div class="verifica-azioni" *ngIf="contestabile(r) && moduloPer !== r.id">
+      <button class="btn btn-sm" type="button" (click)="apriModulo(r)">
+        Chiedi la contestazione
+      </button>
+    </div>
+
+    <div class="verifica" *ngIf="moduloPer === r.id" style="margin-top: 10px">
+      <h3 style="margin: 0 0 4px">Chiedi la contestazione di questa referenza</h3>
+      <p class="verifica-meta" style="margin-bottom: 12px">
+        La referenza resta pubblicata fino alla decisione. Più la spiegazione è circostanziata, più
+        la decisione è rapida.
+      </p>
+
+      <div class="field">
+        <label [attr.for]="'motivo-' + r.id">Motivo</label>
+        <select [attr.id]="'motivo-' + r.id" name="motivo" [(ngModel)]="motivo">
+          <option value="" disabled>Scegli il motivo</option>
+          <option *ngFor="let m of motivi" [value]="m.valore">{{ m.etichetta }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label [attr.for]="'dettaglio-' + r.id">Spiegazione (facoltativa)</label>
+        <textarea
+          [attr.id]="'dettaglio-' + r.id"
+          name="dettaglio"
+          rows="3"
+          maxlength="500"
+          placeholder="Per esempio: in quel periodo ho fatto solo un sopralluogo, senza preventivo firmato."
+          [(ngModel)]="dettaglio"
+        ></textarea>
+        <div class="field-hint">{{ dettaglio.length }}/500 caratteri</div>
+      </div>
+
+      <div class="verifica-azioni">
+        <button class="btn btn-primary" type="button" [disabled]="invio" (click)="invia(r)">
+          {{ invio ? 'Invio…' : 'Invia la richiesta' }}
+        </button>
+        <button class="btn" type="button" [disabled]="invio" (click)="chiudiModulo()">
+          Annulla
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

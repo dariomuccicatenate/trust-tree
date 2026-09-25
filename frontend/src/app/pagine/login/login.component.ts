@@ -5,9 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
-import { Registrazione, RispostaLogin } from '../../core/modelli';
+import { CATEGORIE_SERVIZIO, ESEMPIO_CELLULARE, REGEX_CELLULARE } from '../../core/etichette';
+import { Registrazione, RegistrazioneProfessionista, RispostaLogin } from '../../core/modelli';
 
-type Scheda = 'accesso' | 'registrazione';
+/**
+ * Tre schede: accesso, registrazione di un residente e registrazione di un professionista.
+ * Il tipo di utenza si stabilisce qui: dopo la registrazione non e' piu' modificabile
+ * dall'interessato.
+ */
+type Scheda = 'accesso' | 'registrazione' | 'professionista';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +28,9 @@ export class LoginComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly rotta = inject(ActivatedRoute);
+
+  readonly categorie = CATEGORIE_SERVIZIO;
+  readonly esempioCellulare = ESEMPIO_CELLULARE;
 
   scheda: Scheda = 'accesso';
 
@@ -47,12 +56,25 @@ export class LoginComponent implements OnInit {
     comune: '',
   };
 
+  nuovoPro: RegistrazioneProfessionista & { conferma: string } = {
+    email: '',
+    password: '',
+    conferma: '',
+    nome: '',
+    cognome: '',
+    nomeAttivita: '',
+    categoria: '',
+    telefono: '',
+    quartiere: '',
+    comune: '',
+  };
+
   ngOnInit(): void {
     // Descrizione e anteprime social della pagina pubblica.
     const descrizione =
       'Trova idraulici, elettricisti e imprese edili con referenze verificate di chi li ha ' +
-      'davvero usati: Trust Score sull’affidabilità e Trust Relevance sulle referenze del tuo ' +
-      'condominio. Accedi o registrati su Trust Tree.';
+      'davvero usati: Trust Score sull’affidabilità e Trust Relevance sulle referenze del tuo ' +
+      'condominio. Accedi o registrati su Trust Tree, anche come professionista.';
 
     this.titolo.setTitle('Accedi o registrati — Trust Tree, referenze verificate di professionisti');
     this.meta.updateTag({ name: 'description', content: descrizione });
@@ -109,6 +131,29 @@ export class LoginComponent implements OnInit {
     );
   }
 
+  /** Registrazione come professionista: crea l'account e, insieme, la scheda pubblica. */
+  registratiComeProfessionista(): void {
+    const mancante = this.validaRegistrazionePro();
+    if (mancante) {
+      this.errore = mancante;
+      return;
+    }
+
+    this.esegui(
+      this.auth.registratiComeProfessionista({
+        email: this.nuovoPro.email.trim(),
+        password: this.nuovoPro.password,
+        nome: this.nuovoPro.nome.trim(),
+        cognome: this.nuovoPro.cognome.trim(),
+        nomeAttivita: this.nuovoPro.nomeAttivita?.trim() || undefined,
+        categoria: this.nuovoPro.categoria,
+        telefono: this.nuovoPro.telefono?.trim() || undefined,
+        quartiere: this.nuovoPro.quartiere?.trim() || undefined,
+        comune: this.nuovoPro.comune?.trim() || undefined,
+      }),
+    );
+  }
+
   /** Scorciatoia per il prototipo: l'utenza di prova entra con un solo clic. */
   provaAccount(email: string, password: string): void {
     this.scheda = 'accesso';
@@ -125,7 +170,23 @@ export class LoginComponent implements OnInit {
     return null;
   }
 
-  /** Accesso e registrazione finiscono entrambi con l'utente autenticato. */
+  private validaRegistrazionePro(): string | null {
+    if (!this.nuovoPro.nome.trim() || !this.nuovoPro.cognome.trim()) {
+      return 'Inserisci nome e cognome.';
+    }
+    if (!this.nuovoPro.categoria) return 'Scegli il servizio che offri.';
+    if (!this.nuovoPro.email.trim()) return 'Inserisci una email.';
+    if (this.nuovoPro.password.length < 8) return 'La password deve avere almeno 8 caratteri.';
+    if (this.nuovoPro.password !== this.nuovoPro.conferma) return 'Le due password non coincidono.';
+
+    const contatto = this.nuovoPro.telefono?.trim();
+    if (contatto && !REGEX_CELLULARE.test(contatto)) {
+      return `Il cellulare non sembra valido: usa un formato come ${ESEMPIO_CELLULARE}.`;
+    }
+    return null;
+  }
+
+  /** Accesso e registrazioni finiscono tutti con l'utente autenticato. */
   private esegui(richiesta: Observable<RispostaLogin>): void {
     this.invio = true;
     this.errore = '';
@@ -134,8 +195,7 @@ export class LoginComponent implements OnInit {
       next: (risposta) => {
         this.invio = false;
         const ritorno = this.rotta.snapshot.queryParamMap.get('ritorno');
-        const predefinita = risposta.utente.ruolo === 'admin' ? '/admin' : '/ricerca';
-        this.router.navigateByUrl(ritorno ?? predefinita);
+        this.router.navigateByUrl(ritorno ?? this.auth.paginaIniziale);
       },
       error: (risposta) => {
         this.invio = false;

@@ -1,0 +1,108 @@
+<button class="back-link" type="button" routerLink="/area-professionista">
+  ← Torna alle referenze
+</button>
+
+<h2>I miei dati</h2>
+<p class="result-count">Quello che i tuoi clienti vedono sulla scheda pubblica.</p>
+
+<div class="error-note" *ngIf="errore">{{ errore }}</div>
+<div class="ok-note" *ngIf="conferma">{{ conferma }}</div>
+<div class="building-note" *ngIf="caricamento">Caricamento in corso…</div>
+
+<div class="two-col" *ngIf="scheda as s">
+  <div class="panel">
+    <h3>Contatto e zona</h3>
+    <p class="verifica-meta" style="margin-bottom: 14px">
+      Sono i dati che puoi cambiare quando vuoi: valgono da subito, sulla scheda e nella ricerca.
+    </p>
+
+    <form (ngSubmit)="salva()">
+      <div class="field">
+        <label for="telefono">Cellulare pubblicato</label>
+        <input
+          id="telefono"
+          name="telefono"
+          type="tel"
+          inputmode="tel"
+          [attr.placeholder]="esempioCellulare"
+          [(ngModel)]="telefono"
+        />
+        <div class="field-hint">
+          È il numero che chi cerca un professionista vede e tocca per chiamarti. Lascia il campo
+          vuoto se preferisci non pubblicarlo.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="quartiere">Zona in cui lavori</label>
+        <input
+          id="quartiere"
+          name="quartiere"
+          type="text"
+          placeholder="EUR"
+          [(ngModel)]="quartiere"
+        />
+        <div class="field-hint">
+          Il quartiere: serve a farti trovare da chi abita vicino e pesa sulla rilevanza delle tue
+          referenze.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="comune">Comune o provincia</label>
+        <input id="comune" name="comune" type="text" placeholder="Roma" [(ngModel)]="comune" />
+      </div>
+
+      <div class="verifica-azioni">
+        <button class="btn btn-primary" type="submit" [disabled]="invio || !modificato">
+          {{ invio ? 'Salvataggio…' : 'Salva le modifiche' }}
+        </button>
+        <button class="btn" type="button" [disabled]="invio || !modificato" (click)="annulla()">
+          Annulla
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h3>Dati non modificabili</h3>
+      <p class="verifica-meta" style="margin-bottom: 14px">
+        Nome e servizio sono i dati su cui si è formata la tua reputazione: cambiarli sposterebbe
+        referenze già raccolte. Se c'è un errore scrivi all'amministratore, li corregge lui.
+      </p>
+
+      <div class="stats-inline" style="flex-direction: column; gap: 10px">
+        <div>Nome sulla scheda:&nbsp;<b>{{ s.nome }}</b></div>
+        <div>Servizio:&nbsp;<b>{{ testo(s.categoria) }}</b></div>
+        <div *ngIf="utente">Email di accesso:&nbsp;<b>{{ utente.email }}</b></div>
+        <div *ngIf="utente">
+          Titolare dell'account:&nbsp;<b>{{ utente.nome }} {{ utente.cognome }}</b>
+        </div>
+        <div>Scheda creata il:&nbsp;<b>{{ s.creatoIl | date: 'dd/MM/yyyy' }}</b></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Come ti vedono</h3>
+      <p class="verifica-meta" style="margin-bottom: 10px">
+        Anteprima della tua scheda con i dati che stai scrivendo.
+      </p>
+
+      <div class="card" style="margin: 0">
+        <div class="card-main">
+          <div class="card-title">{{ s.nome }}</div>
+          <div class="card-sub">
+            {{ testo(s.categoria) }}<span *ngIf="anteprimaZona()"> · {{ anteprimaZona() }}</span>
+          </div>
+          <div class="card-sub" *ngIf="telefono.trim()">
+            Contatto: <span class="contatto-numero">{{ telefono.trim() }}</span>
+          </div>
+          <div class="card-sub contatto-assente" *ngIf="!telefono.trim()">
+            Contatto non pubblicato
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

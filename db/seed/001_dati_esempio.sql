@@ -3,7 +3,9 @@
 -- di pubblicazione (5 esperienze valide da 3 utenti distinti).
 --
 -- Credenziali (solo sviluppo):
---   admin@trusttree.local / admin1234   -> ruolo admin
+--   admin@trusttree.local / admin1234    -> ruolo admin
+--   mario.rossi@example.com / trust1234  -> ruolo professionista (scheda Mario Rossi)
+--   luca.bianchi@example.com / trust1234 -> ruolo professionista (scheda Luca Bianchi)
 --   giulia.neri@example.com e gli altri / trust1234
 --
 -- Uso: docker compose exec -T db psql -U trust -d trust_tree < db/seed/001_dati_esempio.sql
@@ -38,10 +40,26 @@ INSERT INTO utente (id, email, nome, cognome, condominio, quartiere, comune, pas
      '$2b$10$DudQzyi/99VQTDd89SVgs.ko8/6IORLJhc0fXw1ctMSbpwqKjTr2O', 'admin')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO professionista (id, nome, categoria, telefono, quartiere, comune) VALUES
-    ('5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b', 'Mario Rossi',  'idraulico',    '+39 333 1120045', 'EUR',       'Roma'),
-    ('9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d', 'Luca Bianchi', 'elettricista', '+39 347 8890123', 'Ostiense',  'Roma'),
-    ('6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f', 'Teknoass',     'idraulico',    '+39 366 5540912', 'Portuense', 'Roma')
+-- Professionisti con un proprio accesso: vedono le referenze ricevute e possono
+-- chiederne la contestazione all'amministratore. Il tipo di utenza si stabilisce
+-- alla registrazione.
+INSERT INTO utente (id, email, nome, cognome, condominio, quartiere, comune, password_hash, ruolo) VALUES
+    ('d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70', 'mario.rossi@example.com', 'Mario', 'Rossi',
+     NULL, 'EUR', 'Roma',
+     '$2b$10$VlSmUfao8oAVkp/GuOZrROZm.KICWP8uMEcUr7ATVuZ0HJWsGBnBS', 'professionista'),
+    ('a7b8c9d0-e1f2-4a3b-8c4d-5e6f7a8b9c0d', 'luca.bianchi@example.com', 'Luca', 'Bianchi',
+     NULL, 'Ostiense', 'Roma',
+     '$2b$10$VlSmUfao8oAVkp/GuOZrROZm.KICWP8uMEcUr7ATVuZ0HJWsGBnBS', 'professionista')
+ON CONFLICT (id) DO NOTHING;
+
+-- Teknoass resta senza account: scheda inserita dall'amministratore e non rivendicata.
+INSERT INTO professionista (id, nome, categoria, telefono, quartiere, comune, utente_id) VALUES
+    ('5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b', 'Mario Rossi',  'idraulico',    '+39 333 1120045', 'EUR',       'Roma',
+     'd4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70'),
+    ('9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d', 'Luca Bianchi', 'elettricista', '+39 347 8890123', 'Ostiense',  'Roma',
+     'a7b8c9d0-e1f2-4a3b-8c4d-5e6f7a8b9c0d'),
+    ('6c5d4e3f-2a1b-4c9d-8e7f-5a4b3c2d1e0f', 'Teknoass',     'idraulico',    '+39 366 5540912', 'Portuense', 'Roma',
+     NULL)
 ON CONFLICT (id) DO NOTHING;
 
 -- Mario Rossi: reputazione pubblicata, due referenze nel Condominio Girasole.
@@ -153,5 +171,18 @@ INSERT INTO recensione (
 ) VALUES
     ('8e7d6c5b-4a39-4b2c-9d1e-0f8a7b6c5d4e', '9b7a6c5d-4e3f-4a2b-8c1d-0e9f8a7b6c5d',
      'elettricista', 'sopralluogo in cantiere', 'ultimi_3_mesi', 'V0');
+
+-- Una contestazione aperta, per la coda dell'amministratore: Mario Rossi sostiene di
+-- non aver eseguito il lavoro descritto in una delle referenze ricevute.
+-- Finche' la richiesta non viene decisa, la referenza resta pubblicata.
+UPDATE recensione
+   SET contestazione_stato     = 'aperta',
+       contestazione_motivo    = 'lavoro_non_mio',
+       contestazione_dettaglio = 'La sostituzione della caldaia non e'' stata eseguita da me: '
+                                 || 'in quel periodo ho solo fatto un sopralluogo, senza preventivo firmato.',
+       contestazione_aperta_il = now() - interval '2 days',
+       contestazione_aperta_da = 'd4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70'
+ WHERE professionista_id = '5e8f1a2b-3c4d-4e5f-9a8b-7c6d5e4f3a2b'
+   AND descrizione_lavoro = 'sostituzione caldaia';
 
 COMMIT;

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { Registrazione, RispostaLogin, Utente } from './modelli';
+import { Registrazione, RegistrazioneProfessionista, RispostaLogin, Utente } from './modelli';
 import { TokenStore } from './token.store';
 
 /** Sessione dell'utente autenticato: token JWT in localStorage e profilo in memoria. */
@@ -27,6 +27,17 @@ export class AuthService {
     return this.corrente.value?.ruolo === 'admin';
   }
 
+  get professionista(): boolean {
+    return this.corrente.value?.ruolo === 'professionista';
+  }
+
+  /** Pagina iniziale del ruolo: ognuno entra dove ha qualcosa da fare. */
+  get paginaIniziale(): string {
+    if (this.admin) return '/admin';
+    if (this.professionista) return '/area-professionista';
+    return '/ricerca';
+  }
+
   get token(): string | null {
     return this.store.leggiToken();
   }
@@ -42,6 +53,16 @@ export class AuthService {
 
   registrati(dati: Registrazione): Observable<RispostaLogin> {
     return this.api.registrazione(dati).pipe(
+      tap((risposta) => {
+        this.salva(risposta.accessToken, risposta.utente);
+        this.corrente.next(risposta.utente);
+      }),
+    );
+  }
+
+  /** Registrazione come professionista: il ruolo si stabilisce qui, non e' poi modificabile. */
+  registratiComeProfessionista(dati: RegistrazioneProfessionista): Observable<RispostaLogin> {
+    return this.api.registrazioneProfessionista(dati).pipe(
       tap((risposta) => {
         this.salva(risposta.accessToken, risposta.utente);
         this.corrente.next(risposta.utente);

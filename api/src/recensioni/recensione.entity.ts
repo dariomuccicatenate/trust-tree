@@ -36,6 +36,11 @@ import {
   CategoriaServizio,
   FASCE_IMPORTO,
   FasciaImporto,
+  MAX_DETTAGLIO_CONTESTAZIONE,
+  MOTIVI_CONTESTAZIONE,
+  MotivoContestazione,
+  STATI_CONTESTAZIONE,
+  StatoContestazione,
 } from '../common/questionario';
 import { Professionista } from '../professionisti/professionista.entity';
 import { Utente } from '../utenti/utente.entity';
@@ -166,6 +171,51 @@ export class Recensione {
   @ApiPropertyOptional()
   @Column({ name: 'note_verifica', type: 'text', nullable: true })
   noteVerifica: string | null;
+
+  // --- contestazione da parte del professionista ---
+
+  @ApiProperty({ enum: STATI_CONTESTAZIONE, default: 'nessuna' })
+  @Column({ name: 'contestazione_stato', type: 'text', default: 'nessuna' })
+  contestazioneStato: StatoContestazione;
+
+  @ApiPropertyOptional({ enum: MOTIVI_CONTESTAZIONE })
+  @Column({ name: 'contestazione_motivo', type: 'text', nullable: true })
+  contestazioneMotivo: MotivoContestazione | null;
+
+  @ApiPropertyOptional({ maxLength: MAX_DETTAGLIO_CONTESTAZIONE })
+  @Column({
+    name: 'contestazione_dettaglio',
+    type: 'varchar',
+    length: MAX_DETTAGLIO_CONTESTAZIONE,
+    nullable: true,
+  })
+  contestazioneDettaglio: string | null;
+
+  @ApiPropertyOptional()
+  @Column({ name: 'contestazione_aperta_il', type: 'timestamptz', nullable: true })
+  contestazioneApertaIl: Date | null;
+
+  @ApiPropertyOptional({ format: 'uuid' })
+  @Column({ name: 'contestazione_aperta_da', type: 'uuid', nullable: true })
+  contestazioneApertaDa: string | null;
+
+  @ApiPropertyOptional()
+  @Column({ name: 'contestazione_decisa_il', type: 'timestamptz', nullable: true })
+  contestazioneDecisaIl: Date | null;
+
+  @ApiPropertyOptional({ format: 'uuid' })
+  @Column({ name: 'contestazione_decisa_da', type: 'uuid', nullable: true })
+  contestazioneDecisaDa: string | null;
+
+  @ApiPropertyOptional({ maxLength: MAX_DETTAGLIO_CONTESTAZIONE })
+  @Column({
+    name: 'contestazione_note_esito',
+    type: 'varchar',
+    length: MAX_DETTAGLIO_CONTESTAZIONE,
+    nullable: true,
+  })
+  contestazioneNoteEsito: string | null;
+
   @ApiProperty()
   @CreateDateColumn({ name: 'creato_il', type: 'timestamptz' })
   creatoIl: Date;

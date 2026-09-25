@@ -971,6 +971,13 @@ footer {
   margin: -8px 0 14px;
 }
 
+/* Il margine negativo qui sopra serve ai suggerimenti che stanno dopo il campo:
+   quando invece il suggerimento e' dentro al campo, deve restare staccato
+   dall'input, altrimenti il bordo in evidenza gli finisce sopra. */
+.field .field-hint {
+  margin: 6px 0 0;
+}
+
 .field-hint.centrata {
   margin-top: 10px;
   text-align: center;
@@ -999,6 +1006,34 @@ footer {
   flex: 1;
   height: 1px;
   background: var(--line);
+}
+
+.altro-profilo {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* pulsante che si comporta da collegamento: cambia scheda senza ricaricare */
+.link-testuale {
+  display: inline;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent-relevance);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.link-testuale:hover {
+  color: var(--accent-trust);
 }
 
 .quick-accounts {

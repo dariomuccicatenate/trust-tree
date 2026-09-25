@@ -28,6 +28,14 @@ export class Professionista {
   @Column({ type: 'text', nullable: true })
   comune: string | null;
 
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description:
+      'Account di tipo professionista che rappresenta la scheda. Vuoto per le schede censite dall’amministratore e non ancora rivendicate.',
+  })
+  @Column({ name: 'utente_id', type: 'uuid', nullable: true })
+  utenteId: string | null;
+
   @ApiProperty()
   @CreateDateColumn({ name: 'creato_il', type: 'timestamptz' })
   creatoIl: Date;
